@@ -1,10 +1,13 @@
 package cat.betdatabase.dao;
 
 import java.util.List;
-import cat.betdatabase.model.Bet;
-import cat.betdatabase.util.HibernateUtil;
+
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
+import cat.betdatabase.model.Bet;
+import cat.betdatabase.util.Constants;
+import cat.betdatabase.util.HibernateUtil;
 
 /**
  * Data Access Object (DAO) for Bet entities.
@@ -58,13 +61,14 @@ public class BetDAO {
         }
     }
 
+    // QUERY PARA ELIMINAR UNA APUESTA POR ID DE EVENTO
     public void delete(Bet bet) {
         Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM Bet b WHERE b.id = :id")
-                   .setParameter("id", bet.getId())
-                   .executeUpdate();
+            session.createMutationQuery(Constants.QUERY_DELETE_ID)
+                .setParameter("id", bet.getId())
+                .executeUpdate();
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
@@ -72,19 +76,21 @@ public class BetDAO {
         }
     }
 
+    // QUERY PARA BUSCAR APUESTAS POR NOMBRE DE APOSTADOR 
     public List<Bet> findByBettorName(String bettorName) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery(
-                "FROM Bet b WHERE LOWER(b.bettorName) LIKE LOWER(:name)", Bet.class)
+                Constants.QUERY_SEARCH_BETTORNAME, Bet.class)
                 .setParameter("name", "%" + bettorName + "%")
                 .list();
         }
     }
 
+    // QUERY PARA BUSCAR APUESTAS POR ID DE EVENTO
     public List<Bet> findByEventId(Long eventId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery(
-                "FROM Bet b WHERE b.event.id = :eventId", Bet.class)
+                Constants.QUERY_SEARCH_EVENTID, Bet.class)
                 .setParameter("eventId", eventId)
                 .list();
         }

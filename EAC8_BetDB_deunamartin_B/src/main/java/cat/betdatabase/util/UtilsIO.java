@@ -164,6 +164,7 @@ public class UtilsIO {
      * @param errorMessage message shown when the input is invalid
      * @return a string containing only letters and spaces
      */
+
     public String askForTextOnlyLetters(String message, String errorMessage) {
         while (true) {
             if (errorMessage == null || errorMessage.isEmpty()) {
@@ -194,7 +195,12 @@ public class UtilsIO {
             if (!inputText.isEmpty() && inputText.matches(Constants.REGEX_DNI_FORMAT)) {
                 return inputText;
             }
-            System.out.println(errorMessage);
+            // Check if it's 8 digits + 1 letter but lowercase
+            if (inputText.matches("^\\d{8}[a-z]$")) {
+                System.out.println("La lletra ha de ser en majúscula (ex: 12345678A)");
+            } else {
+                System.out.println(errorMessage);
+            }
         }
     }
 

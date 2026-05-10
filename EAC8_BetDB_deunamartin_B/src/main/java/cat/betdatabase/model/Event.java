@@ -66,20 +66,20 @@ public class Event {
 
     public void setType(String type) {
         if (type == null || type.isEmpty()) {
-            throw new IllegalArgumentException("El tipus" + Constants.MESSAGE_DEFAULT_EMPTY);
+            throw new IllegalArgumentException("El tipus " + Constants.MESSAGE_DEFAULT_EMPTY);
         }
         if (!type.matches(Constants.REGEX_ONLY_LETTERS)) {
-            throw new IllegalArgumentException("El tipus" + Constants.ERROR_CONTAINS_NUMBERS);
+            throw new IllegalArgumentException("El tipus " + Constants.ERROR_CONTAINS_NUMBERS);
         }
         this.type = type;
     }
 
     public void setName(String name) {
         if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("El nom" + Constants.MESSAGE_DEFAULT_EMPTY);
+            throw new IllegalArgumentException("El nom " + Constants.MESSAGE_DEFAULT_EMPTY);
         }
         if (!name.matches(Constants.REGEX_ONLY_LETTERS)) {
-            throw new IllegalArgumentException("El nom" + Constants.ERROR_CONTAINS_NUMBERS);
+            throw new IllegalArgumentException("El nom " + Constants.ERROR_CONTAINS_NUMBERS);
         }
         this.name = name;
     }
@@ -98,11 +98,11 @@ public class Event {
 
     public void addBet(String betDescription, String bettor, float odds, float amount) {
         if (bettor == null || bettor.isEmpty()) {
-            throw new IllegalArgumentException(Constants.BETTOR_NAME + Constants.MESSAGE_DEFAULT_EMPTY);
+            throw new IllegalArgumentException(Constants.BETTOR_NAME + " " + Constants.MESSAGE_DEFAULT_EMPTY);
         }
 
         if (bettorExists(bettor)) {
-            throw new IllegalArgumentException("L'apostant" + Constants.ERROR_BET_EXISTS);
+            throw new IllegalArgumentException("L'apostant " + Constants.ERROR_BET_EXISTS);
         }
         Bet bet = new Bet(bettor, betDescription, odds, amount);
         bet.setEvent(this);
@@ -111,19 +111,19 @@ public class Event {
 
     public Bet getBet(String bettor) {
         if (bettor == null || bettor.isEmpty()) {
-            throw new IllegalArgumentException(Constants.BETTOR_NAME + Constants.MESSAGE_DEFAULT_EMPTY);
+            throw new IllegalArgumentException(Constants.BETTOR_NAME + " " + Constants.MESSAGE_DEFAULT_EMPTY);
         }
         for (Bet bet : betsList) {
             if (bet.getBettorName().equals(bettor)) {
                 return bet;
             }
         }
-        throw new IllegalArgumentException("No existeix cap aposta per a " + Constants.BETTOR_NAME + ": " + bettor);
+        throw new IllegalArgumentException("No existeix cap aposta per a " + Constants.BETTOR_NAME + " " + bettor);
     }
 
     public boolean bettorExists(String bettor) {
         if (bettor == null || bettor.isEmpty()) {
-            throw new IllegalArgumentException(Constants.BETTOR_NAME + Constants.MESSAGE_DEFAULT_EMPTY);
+            throw new IllegalArgumentException(Constants.BETTOR_NAME + " " + Constants.MESSAGE_DEFAULT_EMPTY);
         }
         for (Bet bet : betsList) {
             if (bet.getBettorName().equals(bettor)) {

@@ -27,13 +27,13 @@ public class Application {
     public static void main(String[] args) {
         int option = -1;
         while (option != 0) {
-            String menu = Constants.OP1_AFEGIR_DESENVOLUPAMENT +
-                          Constants.OP2_AFEGIR_APOSTA +
-                          Constants.OP3_VEURE_APOSTES +
-                          Constants.OP4_EDITAR_APOSTA +
-                          Constants.OP5_ELIMINAR_APOSTA +
-                          Constants.OP6_ELIMINAR_EVENT +
-                          Constants.OP0_SORTIR;
+            String menu = Constants.OP1_AFEGIR_event +
+                Constants.OP2_AFEGIR_APOSTA +
+                Constants.OP3_VEURE_APOSTES +
+                Constants.OP4_EDITAR_APOSTA +
+                Constants.OP5_ELIMINAR_APOSTA +
+                Constants.OP6_ELIMINAR_EVENT +
+                Constants.OP0_SORTIR;
             io.showMenu(menu);
             option = io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.INVALID_OP);
 
@@ -52,7 +52,6 @@ public class Application {
     }
 
     // --- Opció 1: Afegir un esdeveniment ---
-
     private static void addEvent() {
         String type = io.askForTextOnlyLetters(Constants.MESSAGE_DEFAULT_SPORT, Constants.ERROR_SPORT_TYPE);
         String name = io.askForTextWithLetters(Constants.MESSAGE_DEFAULT_EVENT, Constants.ERROR_EVENT_NAME);
@@ -84,7 +83,6 @@ public class Application {
     }
 
     // --- Opció 2: Afegir una aposta ---
-
     private static void addBet() {
         List<Event> events = eventDAO.getAll();
         if (events.isEmpty()) {
@@ -96,12 +94,12 @@ public class Application {
         StringBuilder eventList = new StringBuilder();
         for (Event e : events) {
             String datetime = e.getTimestamp()
-                .format(DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
+            .format(DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
             eventList.append("ID: ").append(e.getId())
-                     .append(" | ").append(e.getType())
-                     .append(" | ").append(e.getName())
-                     .append(" | ").append(datetime)
-                     .append("\n");
+                .append(" | ").append(e.getType())
+                .append(" | ").append(e.getName())
+                .append(" | ").append(datetime)
+                .append("\n");
         }
         io.showInfo(eventList.toString().trim());
 
@@ -125,6 +123,7 @@ public class Application {
             }
         }
 
+        // Dades de l'aposta
         String description = io.askForTextWithLetters(Constants.MESSAGE_DEFAULT_BET_DESCRIPTION, Constants.ERROR_BET_DESCRIPTION);
         float odds = io.askForFloat(Constants.MESSAGE_DEFAULT_ASK_ODDS, Constants.MESSAGE_DEFAULT_ERROR_FLOAT);
         float amount = io.askForFloat(Constants.MESSAGE_DEFAULT_ASK_AMOUNT, Constants.MESSAGE_DEFAULT_ERROR_FLOAT);
@@ -142,7 +141,6 @@ public class Application {
     }
 
     // --- Opció 3: Veure el llistat d'apostes ---
-
     private static void showBets() {
         String filterMenu = Constants.FILTER_ALL_BETS +
                             Constants.FILTER_TYPE_SPORT;
@@ -166,12 +164,12 @@ public class Application {
                 .format(DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
             for (Bet bet : bets) {
                 allBets.append(event.getType()).append(Constants.SEPARATOR)
-                       .append(event.getName()).append(Constants.SEPARATOR)
-                       .append(datetime).append(Constants.SEPARATOR)
-                       .append(bet.getBettorName()).append(Constants.SEPARATOR)
-                       .append(bet.getBetDescription()).append(Constants.SEPARATOR)
-                       .append(bet.getOdds()).append(Constants.SEPARATOR)
-                       .append(bet.getAmount()).append(Constants.NEWLINE);
+                    .append(event.getName()).append(Constants.SEPARATOR)
+                    .append(datetime).append(Constants.SEPARATOR)
+                    .append(bet.getBettorName()).append(Constants.SEPARATOR)
+                    .append(bet.getBetDescription()).append(Constants.SEPARATOR)
+                    .append(bet.getOdds()).append(Constants.SEPARATOR)
+                    .append(bet.getAmount()).append(Constants.NEWLINE);
             }
         }
 
@@ -183,7 +181,6 @@ public class Application {
     }
 
     // --- Opció 4: Editar una aposta ---
-
     private static void editBets() {
         List<Bet> allBets = betDAO.getAll();
         if (allBets.isEmpty()) {
@@ -196,13 +193,13 @@ public class Application {
         for (Bet bet : allBets) {
             Event event = bet.getEvent();
             betList.append("ID: ").append(bet.getId())
-                   .append(" | ").append(event.getType())
-                   .append(" | ").append(event.getName())
-                   .append(" | ").append(bet.getBettorName())
-                   .append(" | ").append(bet.getBetDescription())
-                   .append(" | Odds: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getOdds()))
-                   .append(" | Amount: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getAmount()))
-                   .append("\n");
+            .append(" | ").append(event.getType())
+            .append(" | ").append(event.getName())
+            .append(" | ").append(bet.getBettorName())
+            .append(" | ").append(bet.getBetDescription())
+            .append(" | Odds: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getOdds()))
+            .append(" | Amount: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getAmount()))
+            .append("\n");
         }
         io.showInfo(betList.toString().trim());
 
@@ -216,10 +213,10 @@ public class Application {
 
         // Mostrar dades actuals
         io.showInfo(Constants.MESSAGE_DEFAULT_BET_DATA +
-                   "Apostant: " + selectedBet.getBettorName() + "\n" +
-                   "Descripció: " + selectedBet.getBetDescription() + "\n" +
-                   "Odds: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getOdds()) + "\n" +
-                   "Quantitat: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getAmount()));
+            "Apostant: " + selectedBet.getBettorName() + "\n" +
+            "Descripció: " + selectedBet.getBetDescription() + "\n" +
+            "Odds: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getOdds()) + "\n" +
+            "Quantitat: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getAmount()));
 
         // Demanar quins camps editar
         io.showMenu(Constants.EDIT_BET_MENU);
@@ -265,7 +262,6 @@ public class Application {
     }
 
     // --- Opció 5: Eliminar una aposta ---
-
     private static void deleteBets() {
         List<Bet> allBets = betDAO.getAll();
         if (allBets.isEmpty()) {
@@ -278,13 +274,13 @@ public class Application {
         for (Bet bet : allBets) {
             Event event = bet.getEvent();
             betList.append("ID: ").append(bet.getId())
-                   .append(" | ").append(event.getType())
-                   .append(" | ").append(event.getName())
-                   .append(" | ").append(bet.getBettorName())
-                   .append(" | ").append(bet.getBetDescription())
-                   .append(" | Odds: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getOdds()))
-                   .append(" | Amount: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getAmount()))
-                   .append("\n");
+                .append(" | ").append(event.getType())
+                .append(" | ").append(event.getName())
+                .append(" | ").append(bet.getBettorName())
+                .append(" | ").append(bet.getBetDescription())
+                .append(" | Odds: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getOdds()))
+                .append(" | Amount: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getAmount()))
+                .append("\n");
         }
         io.showInfo(betList.toString().trim());
 
@@ -301,11 +297,11 @@ public class Application {
         String datetime = event.getTimestamp()
             .format(DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
         io.showInfo(Constants.MESSAGE_DEFAULT_CONFIRM_DELETE +
-                   "Esdeveniment: " + event.getType() + " - " + event.getName() + " (" + datetime + ")\n" +
-                   "Apostant: " + selectedBet.getBettorName() + "\n" +
-                   "Descripció: " + selectedBet.getBetDescription() + "\n" +
-                   "Odds: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getOdds()) + "\n" +
-                   "Quantitat: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getAmount()));
+            "Esdeveniment: " + event.getType() + " - " + event.getName() + " (" + datetime + ")\n" +
+            "Apostant: " + selectedBet.getBettorName() + "\n" +
+            "Descripció: " + selectedBet.getBetDescription() + "\n" +
+            "Odds: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getOdds()) + "\n" +
+            "Quantitat: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getAmount()));
 
         io.showMenu(Constants.CONFIRM_DELETE_OPTIONS);
         int confirmOption = io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.INVALID_OP);
@@ -323,7 +319,6 @@ public class Application {
     }
 
     // --- Opció 6: Eliminar un desenvolupament ---
-
     private static void deleteEvents() {
         List<Event> allEvents = eventDAO.getAll();
         if (allEvents.isEmpty()) {
@@ -337,10 +332,10 @@ public class Application {
             String datetime = event.getTimestamp()
                 .format(DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
             eventList.append("ID: ").append(event.getId())
-                   .append(" | ").append(event.getType())
-                   .append(" | ").append(event.getName())
-                   .append(" | ").append(datetime)
-                   .append("\n");
+            .append(" | ").append(event.getType())
+            .append(" | ").append(event.getName())
+            .append(" | ").append(datetime)
+            .append("\n");
         }
         io.showInfo(eventList.toString().trim());
 
@@ -356,9 +351,9 @@ public class Application {
         String datetime = selectedEvent.getTimestamp()
             .format(DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
         io.showInfo(Constants.MESSAGE_DEFAULT_CONFIRM_DELETE +
-                   "Tipus: " + selectedEvent.getType() + "\n" +
-                   "Nom: " + selectedEvent.getName() + "\n" +
-                   "Data: " + datetime);
+            "Tipus: " + selectedEvent.getType() + "\n" +
+            "Nom: " + selectedEvent.getName() + "\n" +
+            "Data: " + datetime);
 
         io.showMenu(Constants.CONFIRM_DELETE_OPTIONS);
         int confirmOption = io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.INVALID_OP);
