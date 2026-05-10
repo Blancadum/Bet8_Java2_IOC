@@ -23,7 +23,7 @@ public class Bet {
     private float odds;
     private float amount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_id")
     private Event event;
 
@@ -65,8 +65,8 @@ public class Bet {
         if (bettorName == null || bettorName.isEmpty()) {
             throw new IllegalArgumentException(Constants.MESSAGE_DEFAULT_EMPTY);
         }
-        if (!bettorName.matches(Constants.REGEX_ONLY_LETTERS)) {
-            throw new IllegalArgumentException(Constants.ERROR_CONTAINS_NUMBERS);
+        if (!bettorName.matches(Constants.REGEX_DNI_FORMAT)) {
+            throw new IllegalArgumentException(Constants.ERROR_BETTOR_NAME);
         }
         this.bettorName = bettorName;
     }
@@ -79,8 +79,8 @@ public class Bet {
         if (betDescription == null || betDescription.isEmpty()) {
             throw new IllegalArgumentException(Constants.MESSAGE_DEFAULT_EMPTY);
         }
-        if (!betDescription.matches(Constants.REGEX_ONLY_LETTERS)) {
-            throw new IllegalArgumentException(Constants.ERROR_CONTAINS_NUMBERS);
+        if (!betDescription.matches(Constants.REGEX_LETTERS_NUMBERS)) {
+            throw new IllegalArgumentException(Constants.ERROR_BET_DESCRIPTION);
         }
         this.betDescription = betDescription;
     }

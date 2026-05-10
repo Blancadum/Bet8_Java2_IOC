@@ -178,6 +178,27 @@ public class UtilsIO {
     }
 
     /**
+     * Prompts the user for a DNI (8 digits + 1 letter, e.g., 12345678A).
+     * Repeats until valid input is entered.
+     *
+     * @param message the prompt shown to the user
+     * @param errorMessage message shown when the input is invalid
+     * @return a valid DNI string
+     */
+    public String askForDNI(String message, String errorMessage) {
+        while (true) {
+            if (errorMessage == null || errorMessage.isEmpty()) {
+                errorMessage = Constants.MESSAGE_DEFAULT_ERROR_STRING;
+            }
+            String inputText = askForAnyString(message);
+            if (!inputText.isEmpty() && inputText.matches(Constants.REGEX_DNI_FORMAT)) {
+                return inputText;
+            }
+            System.out.println(errorMessage);
+        }
+    }
+
+    /**
      * Prompts the user to enter an integer value.
      * Repeats until a valid integer is entered.
      *
@@ -257,7 +278,7 @@ public class UtilsIO {
                     String oddsString = bet[5].trim().isEmpty() ? Constants.EMPTY_STRING : String.format(Constants.FLOAT_TWO_DECIMALS, Float.parseFloat(bet[5]));
                     String betString = bet[6].trim().isEmpty() ? Constants.EMPTY_STRING : String.format(Constants.FLOAT_TWO_DECIMALS, Float.parseFloat(bet[6]));
                     System.out.println(String.format(
-                        Constants.BET_BOARD_FORMAT, 
+                        Constants.BET_BOARD_FORMAT,
                         datetime, bet[0], event, bet[3], bet[4], oddsString, betString));
                 } catch (NumberFormatException e) {
                     continue;

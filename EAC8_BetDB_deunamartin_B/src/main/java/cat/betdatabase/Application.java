@@ -30,6 +30,9 @@ public class Application {
             String menu = Constants.OP1_AFEGIR_DESENVOLUPAMENT +
                           Constants.OP2_AFEGIR_APOSTA +
                           Constants.OP3_VEURE_APOSTES +
+                          Constants.OP4_EDITAR_APOSTA +
+                          Constants.OP5_ELIMINAR_APOSTA +
+                          Constants.OP6_ELIMINAR_EVENT +
                           Constants.OP0_SORTIR;
             io.showMenu(menu);
             option = io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.INVALID_OP);
@@ -38,6 +41,9 @@ public class Application {
                 case 1 -> addEvent();
                 case 2 -> addBet();
                 case 3 -> showBets();
+                case 4 -> editBets();
+                case 5 -> deleteBets();
+                case 6 -> deleteEvents();
                 case 0 -> io.showInfo(Constants.MESSAGE_DEFAULT_EXIT);
                 default -> io.showError(Constants.INVALID_OP);
             }
@@ -108,7 +114,7 @@ public class Application {
         }
 
         // Dades de l'aposta
-        String bettorName = io.askForTextWithLetters(Constants.BETTOR_NAME, Constants.ERROR_BETTOR_NAME);
+        String bettorName = io.askForDNI(Constants.BETTOR_NAME, Constants.ERROR_BETTOR_NAME);
 
         // Comprovar que l'apostant no té ja una aposta en aquest esdeveniment
         List<Bet> existingBets = betDAO.findByEventId(eventId);
@@ -130,15 +136,17 @@ public class Application {
             io.showInfo(Constants.ID_BET_OK + bet.getId());
         } catch (IllegalArgumentException e) {
             io.showError(e.getMessage());
+        } catch (Exception e) {
+            io.showError(Constants.ERROR_INSERTING_BET + e.getMessage());
         }
     }
 
     // --- Opció 3: Veure el llistat d'apostes ---
 
     private static void showBets() {
-        String filterMenu = Constants.FILTER_ALL_BETS + 
+        String filterMenu = Constants.FILTER_ALL_BETS +
                             Constants.FILTER_TYPE_SPORT;
-                            
+
         io.showMenu(filterMenu);
         int filterOption = io.askForInteger(Constants.ASK_FILTER_OPTION, Constants.INVALID_OP);
 
@@ -171,6 +179,199 @@ public class Application {
             io.showInfo(Constants.ERROR_NO_BETS);
         } else {
             io.showBets(allBets.toString().trim());
+        }
+    }
+
+    // --- Opció 4: Editar una aposta ---
+
+    private static void editBets() {
+        List<Bet> allBets = betDAO.getAll();
+        if (allBets.isEmpty()) {
+            io.showInfo(Constants.ERROR_NO_BETS);
+            return;
+        }
+
+        // Mostrar totes les apostes amb ID
+        StringBuilder betList = new StringBuilder();
+        for (Bet bet : allBets) {
+            Event event = bet.getEvent();
+            betList.append("ID: ").append(bet.getId())
+                   .append(" | ").append(event.getType())
+                   .append(" | ").append(event.getName())
+                   .append(" | ").append(bet.getBettorName())
+                   .append(" | ").append(bet.getBetDescription())
+                   .append(" | Odds: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getOdds()))
+                   .append(" | Amount: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getAmount()))
+                   .append("\n");
+        }
+        io.showInfo(betList.toString().trim());
+
+        // Seleccionar aposta per ID
+        Long betId = (long) io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.ERROR_ID_INVALID);
+        Bet selectedBet = betDAO.getById(betId);
+        if (selectedBet == null) {
+            io.showError(Constants.ERROR_ID_INVALID + betId);
+            return;
+        }
+
+        // Mostrar dades actuals
+        io.showInfo(Constants.MESSAGE_DEFAULT_BET_DATA +
+                   "Apostant: " + selectedBet.getBettorName() + "\n" +
+                   "Descripció: " + selectedBet.getBetDescription() + "\n" +
+                   "Odds: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getOdds()) + "\n" +
+                   "Quantitat: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getAmount()));
+
+        // Demanar quins camps editar
+        io.showMenu(Constants.EDIT_BET_MENU);
+        int editOption = io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.INVALID_OP);
+
+        try {
+            switch (editOption) {
+                case 1 -> {
+                    String newDescription = io.askForTextWithLetters(Constants.MESSAGE_DEFAULT_BET_DESCRIPTION, Constants.ERROR_BET_DESCRIPTION);
+                    selectedBet.setBetDescription(newDescription);
+                }
+                case 2 -> {
+                    float newOdds = io.askForFloat(Constants.MESSAGE_DEFAULT_ASK_ODDS, Constants.MESSAGE_DEFAULT_ERROR_FLOAT);
+                    selectedBet.setOdds(newOdds);
+                }
+                case 3 -> {
+                    float newAmount = io.askForFloat(Constants.MESSAGE_DEFAULT_ASK_AMOUNT, Constants.MESSAGE_DEFAULT_ERROR_FLOAT);
+                    selectedBet.setAmount(newAmount);
+                }
+                case 4 -> {
+                    String newDescription = io.askForTextWithLetters(Constants.MESSAGE_DEFAULT_BET_DESCRIPTION, Constants.ERROR_BET_DESCRIPTION);
+                    float newOdds = io.askForFloat(Constants.MESSAGE_DEFAULT_ASK_ODDS, Constants.MESSAGE_DEFAULT_ERROR_FLOAT);
+                    float newAmount = io.askForFloat(Constants.MESSAGE_DEFAULT_ASK_AMOUNT, Constants.MESSAGE_DEFAULT_ERROR_FLOAT);
+                    selectedBet.setBetDescription(newDescription);
+                    selectedBet.setOdds(newOdds);
+                    selectedBet.setAmount(newAmount);
+                }
+                case 0 -> {
+                    io.showInfo(Constants.MESSAGE_DEFAULT_EDIT_CANCELLED);
+                    return;
+                }
+                default -> {
+                    io.showError(Constants.INVALID_OP);
+                    return;
+                }
+            }
+
+            betDAO.update(selectedBet);
+            io.showInfo(Constants.MESSAGE_DEFAULT_BET_UPDATED);
+        } catch (IllegalArgumentException e) {
+            io.showError(e.getMessage());
+        }
+    }
+
+    // --- Opció 5: Eliminar una aposta ---
+
+    private static void deleteBets() {
+        List<Bet> allBets = betDAO.getAll();
+        if (allBets.isEmpty()) {
+            io.showInfo(Constants.ERROR_NO_BETS);
+            return;
+        }
+
+        // Mostrar totes les apostes amb ID
+        StringBuilder betList = new StringBuilder();
+        for (Bet bet : allBets) {
+            Event event = bet.getEvent();
+            betList.append("ID: ").append(bet.getId())
+                   .append(" | ").append(event.getType())
+                   .append(" | ").append(event.getName())
+                   .append(" | ").append(bet.getBettorName())
+                   .append(" | ").append(bet.getBetDescription())
+                   .append(" | Odds: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getOdds()))
+                   .append(" | Amount: ").append(String.format(Constants.FLOAT_TWO_DECIMALS, bet.getAmount()))
+                   .append("\n");
+        }
+        io.showInfo(betList.toString().trim());
+
+        // Seleccionar aposta per ID
+        Long betId = (long) io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.ERROR_ID_INVALID);
+        Bet selectedBet = betDAO.getById(betId);
+        if (selectedBet == null) {
+            io.showError(Constants.ERROR_ID_INVALID + betId);
+            return;
+        }
+
+        // Mostrar dades i confirmar eliminació
+        Event event = selectedBet.getEvent();
+        String datetime = event.getTimestamp()
+            .format(DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
+        io.showInfo(Constants.MESSAGE_DEFAULT_CONFIRM_DELETE +
+                   "Esdeveniment: " + event.getType() + " - " + event.getName() + " (" + datetime + ")\n" +
+                   "Apostant: " + selectedBet.getBettorName() + "\n" +
+                   "Descripció: " + selectedBet.getBetDescription() + "\n" +
+                   "Odds: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getOdds()) + "\n" +
+                   "Quantitat: " + String.format(Constants.FLOAT_TWO_DECIMALS, selectedBet.getAmount()));
+
+        io.showMenu(Constants.CONFIRM_DELETE_OPTIONS);
+        int confirmOption = io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.INVALID_OP);
+
+        if (confirmOption == 1) {
+            try {
+                betDAO.delete(selectedBet);
+                io.showInfo(Constants.MESSAGE_DEFAULT_BET_DELETED);
+            } catch (Exception e) {
+                io.showError(Constants.ERROR_DELETE_BET + e.getMessage());
+            }
+        } else {
+            io.showInfo(Constants.MESSAGE_DEFAULT_DELETE_CANCELLED);
+        }
+    }
+
+    // --- Opció 6: Eliminar un desenvolupament ---
+
+    private static void deleteEvents() {
+        List<Event> allEvents = eventDAO.getAll();
+        if (allEvents.isEmpty()) {
+            io.showInfo(Constants.MESSAGE_DEFAULT_EMPTY);
+            return;
+        }
+
+        // Mostrar tots els desenvolupaments amb ID
+        StringBuilder eventList = new StringBuilder();
+        for (Event event : allEvents) {
+            String datetime = event.getTimestamp()
+                .format(DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
+            eventList.append("ID: ").append(event.getId())
+                   .append(" | ").append(event.getType())
+                   .append(" | ").append(event.getName())
+                   .append(" | ").append(datetime)
+                   .append("\n");
+        }
+        io.showInfo(eventList.toString().trim());
+
+        // Seleccionar desenvolupament per ID
+        Long eventId = (long) io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.ERROR_ID_INVALID);
+        Event selectedEvent = eventDAO.getById(eventId);
+        if (selectedEvent == null) {
+            io.showError(Constants.ERROR_ID_INVALID + eventId);
+            return;
+        }
+
+        // Mostrar dades i confirmar eliminació
+        String datetime = selectedEvent.getTimestamp()
+            .format(DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
+        io.showInfo(Constants.MESSAGE_DEFAULT_CONFIRM_DELETE +
+                   "Tipus: " + selectedEvent.getType() + "\n" +
+                   "Nom: " + selectedEvent.getName() + "\n" +
+                   "Data: " + datetime);
+
+        io.showMenu(Constants.CONFIRM_DELETE_OPTIONS);
+        int confirmOption = io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.INVALID_OP);
+
+        if (confirmOption == 1) {
+            try {
+                eventDAO.delete(selectedEvent);
+                io.showInfo(Constants.MESSAGE_DEFAULT_EVENT_DELETED);
+            } catch (Exception e) {
+                io.showError(Constants.ERROR_DELETE_BET + e.getMessage());
+            }
+        } else {
+            io.showInfo(Constants.MESSAGE_DEFAULT_DELETE_CANCELLED);
         }
     }
 }

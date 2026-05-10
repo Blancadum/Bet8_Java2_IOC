@@ -62,8 +62,9 @@ public class BetDAO {
         Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
-            Bet managed = session.merge(bet);
-            session.remove(managed);
+            session.createMutationQuery("DELETE FROM Bet b WHERE b.id = :id")
+                   .setParameter("id", bet.getId())
+                   .executeUpdate();
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();
