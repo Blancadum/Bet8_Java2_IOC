@@ -1,8 +1,0 @@
-cat/betdatabase/util/UtilsIO.class
-cat/betdatabase/util/Constants.class
-cat/betdatabase/dao/EventDAO.class
-cat/betdatabase/dao/BetDAO.class
-cat/betdatabase/model/Bet.class
-cat/betdatabase/util/HibernateUtil.class
-cat/betdatabase/model/Event.class
-cat/betdatabase/Application.class

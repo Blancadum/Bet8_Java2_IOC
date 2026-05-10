@@ -1,4 +1,8 @@
 package cat.betdatabase;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 
 import cat.betdatabase.dao.BetDAO;
 import cat.betdatabase.dao.EventDAO;
@@ -7,11 +11,6 @@ import cat.betdatabase.model.Event;
 import cat.betdatabase.util.Constants;
 import cat.betdatabase.util.HibernateUtil;
 import cat.betdatabase.util.UtilsIO;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.List;
 
 /**
  * Main application class for the Betting Database System.
@@ -28,19 +27,19 @@ public class Application {
     public static void main(String[] args) {
         int option = -1;
         while (option != 0) {
-            String menu = "1. Afegir un esdeveniment\n" +
-                          "2. Afegir una aposta a un esdeveniment\n" +
-                          "3. Veure el llistat d'apostes\n" +
-                          "0. Sortir";
+            String menu = Constants.OP1_AFEGIR_DESENVOLUPAMENT +
+                          Constants.OP2_AFEGIR_APOSTA +
+                          Constants.OP3_VEURE_APOSTES +
+                          Constants.OP0_SORTIR;
             io.showMenu(menu);
-            option = io.askForInteger("Escull una opció:", "Opció no vàlida");
+            option = io.askForInteger(Constants.MESSAGE_DEFAULT_ASK_INTEGER, Constants.INVALID_OP);
 
             switch (option) {
                 case 1 -> addEvent();
                 case 2 -> addBet();
                 case 3 -> showBets();
-                case 0 -> io.showInfo("Fins aviat!");
-                default -> io.showError("Opció no vàlida");
+                case 0 -> io.showInfo(Constants.MESSAGE_DEFAULT_EXIT);
+                default -> io.showError(Constants.INVALID_OP);
             }
         }
         HibernateUtil.shutdown();
@@ -49,30 +48,30 @@ public class Application {
     // --- Opció 1: Afegir un esdeveniment ---
 
     private static void addEvent() {
-        String type = io.askForNotEmptyString("Introdueix el tipus d'esport:", "El tipus no pot ser buit");
-        String name = io.askForNotEmptyString("Introdueix el nom de l'esdeveniment:", "El nom no pot ser buit");
+        String type = io.askForTextOnlyLetters(Constants.MESSAGE_DEFAULT_SPORT, Constants.ERROR_SPORT_TYPE);
+        String name = io.askForTextWithLetters(Constants.MESSAGE_DEFAULT_EVENT, Constants.ERROR_EVENT_NAME);
 
         LocalDateTime timestamp = null;
         while (timestamp == null) {
             String dateStr = io.askForNotEmptyString(
-                "Introdueix la data i hora (format: yyyyMMddHHmm):",
-                "La data no pot ser buida");
+                Constants.MESSAGE_DEFAULT_ASK_DATETIME,
+                Constants.EMPTY_STRING);
             try {
                 timestamp = LocalDateTime.parse(dateStr,
                     DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT));
                 if (!timestamp.isAfter(LocalDateTime.now())) {
-                    io.showError("La data ha de ser futura. Torna-ho a intentar.");
+                    io.showError(Constants.ERROR_DATE_FUTURE);
                     timestamp = null;
                 }
             } catch (DateTimeParseException e) {
-                io.showError("Format incorrecte. Utilitza: yyyyMMddHHmm (ex: 202605251430)");
+                io.showError(Constants.ERROR_DATATIME_PARSE);
             }
         }
 
         try {
             Event event = new Event(type, name, timestamp);
             eventDAO.save(event);
-            io.showInfo("Esdeveniment afegit correctament amb ID: " + event.getId());
+            io.showInfo(Constants.ID_EVENT_OK + event.getId());
         } catch (IllegalArgumentException e) {
             io.showError(e.getMessage());
         }
@@ -83,7 +82,7 @@ public class Application {
     private static void addBet() {
         List<Event> events = eventDAO.getAll();
         if (events.isEmpty()) {
-            io.showInfo("No hi ha esdeveniments disponibles. Afegeix-ne un primer.");
+            io.showInfo(Constants.MESSAGE_DEFAULT_EMPTY);
             return;
         }
 
@@ -101,34 +100,34 @@ public class Application {
         io.showInfo(eventList.toString().trim());
 
         // Seleccionar esdeveniment per ID
-        Long eventId = (long) io.askForInteger("Introdueix l'ID de l'esdeveniment:", "ID no vàlid");
+        Long eventId = (long) io.askForInteger(Constants.MESSAGE_DEFAULT_EVENT_ID, Constants.ERROR_ID_INVALID);
         Event selectedEvent = eventDAO.getById(eventId);
         if (selectedEvent == null) {
-            io.showError("No existeix cap esdeveniment amb l'ID: " + eventId);
+            io.showError(Constants.ERROR_ID_INVALID + eventId);
             return;
         }
 
         // Dades de l'aposta
-        String bettorName = io.askForNotEmptyString("Nom de l'apostant:", "El nom no pot ser buit");
+        String bettorName = io.askForTextWithLetters(Constants.BETTOR_NAME, Constants.ERROR_BETTOR_NAME);
 
         // Comprovar que l'apostant no té ja una aposta en aquest esdeveniment
         List<Bet> existingBets = betDAO.findByEventId(eventId);
         for (Bet b : existingBets) {
             if (b.getBettorName().equals(bettorName)) {
-                io.showError("L'apostant '" + bettorName + "' ja té una aposta en aquest esdeveniment.");
+                io.showError("L'apostant '" + bettorName + "' " + Constants.ERROR_BET_EXISTS);
                 return;
             }
         }
 
-        String description = io.askForNotEmptyString("Descripció de l'aposta:", "La descripció no pot ser buida");
-        float odds = io.askForFloat("Quotes (ex: 1.75):", "Les quotes han de ser un número");
-        float amount = io.askForFloat("Import (ex: 50.0):", "L'import ha de ser un número");
+        String description = io.askForTextWithLetters(Constants.MESSAGE_DEFAULT_BET_DESCRIPTION, Constants.ERROR_BET_DESCRIPTION);
+        float odds = io.askForFloat(Constants.MESSAGE_DEFAULT_ASK_ODDS, Constants.MESSAGE_DEFAULT_ERROR_FLOAT);
+        float amount = io.askForFloat(Constants.MESSAGE_DEFAULT_ASK_AMOUNT, Constants.MESSAGE_DEFAULT_ERROR_FLOAT);
 
         try {
             Bet bet = new Bet(bettorName, description, odds, amount);
             bet.setEvent(selectedEvent);
             betDAO.save(bet);
-            io.showInfo("Aposta afegida correctament amb ID: " + bet.getId());
+            io.showInfo(Constants.ID_BET_OK + bet.getId());
         } catch (IllegalArgumentException e) {
             io.showError(e.getMessage());
         }
@@ -137,14 +136,15 @@ public class Application {
     // --- Opció 3: Veure el llistat d'apostes ---
 
     private static void showBets() {
-        String filterMenu = "1. Veure totes les apostes\n" +
-                            "2. Filtrar per tipus d'esport";
+        String filterMenu = Constants.FILTER_ALL_BETS + 
+                            Constants.FILTER_TYPE_SPORT;
+                            
         io.showMenu(filterMenu);
-        int filterOption = io.askForInteger("Escull una opció:", "Opció no vàlida");
+        int filterOption = io.askForInteger(Constants.ASK_FILTER_OPTION, Constants.INVALID_OP);
 
         List<Event> events;
         if (filterOption == 2) {
-            String type = io.askForNotEmptyString("Introdueix el tipus d'esport:", "El tipus no pot ser buit");
+            String type = io.askForTextOnlyLetters(Constants.MESSAGE_DEFAULT_FILTER_TYPE, Constants.ERROR_SPORT_TYPE);
             events = eventDAO.findByType(type);
         } else {
             events = eventDAO.getAll();
@@ -168,7 +168,7 @@ public class Application {
         }
 
         if (allBets.isEmpty()) {
-            io.showInfo("No hi ha apostes per mostrar.");
+            io.showInfo(Constants.ERROR_NO_BETS);
         } else {
             io.showBets(allBets.toString().trim());
         }

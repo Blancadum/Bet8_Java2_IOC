@@ -63,7 +63,10 @@ public class Bet {
 
     public void setBettorName(String bettorName) {
         if (bettorName == null || bettorName.isEmpty()) {
-            throw new IllegalArgumentException("El nom de l'apostant no pot ser buit");
+            throw new IllegalArgumentException(Constants.MESSAGE_DEFAULT_EMPTY);
+        }
+        if (!bettorName.matches(Constants.REGEX_ONLY_LETTERS)) {
+            throw new IllegalArgumentException(Constants.ERROR_CONTAINS_NUMBERS);
         }
         this.bettorName = bettorName;
     }
@@ -74,7 +77,10 @@ public class Bet {
 
     public void setBetDescription(String betDescription) {
         if (betDescription == null || betDescription.isEmpty()) {
-            throw new IllegalArgumentException("La descripció no pot ser buida");
+            throw new IllegalArgumentException(Constants.MESSAGE_DEFAULT_EMPTY);
+        }
+        if (!betDescription.matches(Constants.REGEX_ONLY_LETTERS)) {
+            throw new IllegalArgumentException(Constants.ERROR_CONTAINS_NUMBERS);
         }
         this.betDescription = betDescription;
     }
@@ -85,7 +91,7 @@ public class Bet {
 
     public void setOdds(float odds) {
         if (odds <= 0) {
-            throw new IllegalArgumentException("Les quotes han de ser majors que 0");
+            throw new IllegalArgumentException(Constants.MESSAGE_DEFAULT_ERROR_INTEGER);
         }
         this.odds = odds;
     }
@@ -96,7 +102,7 @@ public class Bet {
 
     public void setAmount(float amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("L'import ha de ser major que 0");
+            throw new IllegalArgumentException(Constants.MESSAGE_DEFAULT_ERROR_INTEGER);
         }
         this.amount = amount;
     }

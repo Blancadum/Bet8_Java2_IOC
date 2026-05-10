@@ -106,6 +106,78 @@ public class UtilsIO {
     }
 
     /**
+     * Prompts the user for a text string that must contain at least one letter.
+     * Repeats until valid input is entered.
+     *
+     * @param message the prompt shown to the user
+     * @param errorMessage message shown when the input is empty or contains no letters
+     * @return a string containing at least one letter
+     */
+    public String askForTextWithLetters(String message, String errorMessage) {
+        while (true) {
+            if (errorMessage == null || errorMessage.isEmpty()) {
+                errorMessage = Constants.MESSAGE_DEFAULT_ERROR_STRING;
+            }
+            String inputText = askForAnyString(message);
+            if (!inputText.isEmpty() && containsLetter(inputText)) {
+                return inputText;
+            }
+            System.out.println(errorMessage);
+        }
+    }
+
+    /**
+     * Checks if a string contains at least one letter.
+     *
+     * @param text the string to check
+     * @return true if the string contains at least one letter, false otherwise
+     */
+    private boolean containsLetter(String text) {
+        for (char c : text.toCharArray()) {
+            if (Character.isLetter(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if a string contains only letters and spaces.
+     *
+     * @param text the string to check
+     * @return true if the string contains only letters and spaces, false otherwise
+     */
+    private boolean containsOnlyLettersAndSpaces(String text) {
+        for (char c : text.toCharArray()) {
+            if (!Character.isLetter(c) && c != ' ') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Prompts the user for text that contains only letters and spaces.
+     * Repeats until valid input is entered.
+     *
+     * @param message the prompt shown to the user
+     * @param errorMessage message shown when the input is invalid
+     * @return a string containing only letters and spaces
+     */
+    public String askForTextOnlyLetters(String message, String errorMessage) {
+        while (true) {
+            if (errorMessage == null || errorMessage.isEmpty()) {
+                errorMessage = Constants.MESSAGE_DEFAULT_ERROR_STRING;
+            }
+            String inputText = askForAnyString(message);
+            if (!inputText.isEmpty() && containsOnlyLettersAndSpaces(inputText)) {
+                return inputText;
+            }
+            System.out.println(errorMessage);
+        }
+    }
+
+    /**
      * Prompts the user to enter an integer value.
      * Repeats until a valid integer is entered.
      *
