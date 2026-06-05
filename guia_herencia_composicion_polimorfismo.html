@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Herencia, Composición y Polimorfismo en Java</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 15px; max-width: 860px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.6; }
+  h1 { color: #1a1a2e; border-bottom: 3px solid #1a1a2e; padding-bottom: 10px; font-size: 26px; }
+  h2 { color: #16213e; border-bottom: 1px solid #ccc; padding-bottom: 6px; margin-top: 40px; font-size: 20px; }
+  h3 { color: #0f3460; margin-top: 24px; font-size: 16px; }
+  p, li { font-family: Arial, sans-serif; font-size: 15px; }
+  pre { background: #f4f4f4; border-left: 4px solid #0f3460; padding: 16px; border-radius: 4px; overflow-x: auto; margin: 12px 0; }
+  code { font-family: Consolas, monospace; font-size: 14px; }
+  pre code { font-family: Consolas, monospace; font-size: 14px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
+  th { background: #1a1a2e; color: white; padding: 10px 12px; text-align: left; font-family: Arial, sans-serif; }
+  td { border: 1px solid #ddd; padding: 8px 12px; font-family: Arial, sans-serif; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .nota { background: #e8f4f8; border-left: 4px solid #0f3460; padding: 12px 15px; border-radius: 4px; margin: 14px 0; font-size: 14px; }
+  .alerta { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 15px; border-radius: 4px; margin: 14px 0; font-size: 14px; }
+  .bien { background: #d4edda; border-left: 4px solid #28a745; padding: 12px 15px; border-radius: 4px; margin: 14px 0; font-size: 14px; }
+  .seccion { page-break-inside: avoid; }
+  .indice { background: #f0f4ff; border: 1px solid #c0cfee; border-radius: 6px; padding: 16px 24px; margin-bottom: 36px; }
+  .indice h2 { border: none; margin-top: 0; }
+  .indice ol { margin: 0; padding-left: 20px; }
+  .indice li { margin: 4px 0; }
+  .comentario { color: #5a7a5a; }
+</style>
+</head>
+<body>
+
+<h1>Herencia, Composición y Polimorfismo en Java</h1>
+
+<div class="indice">
+  <h2>Contenido</h2>
+  <ol>
+    <li>Herencia — qué es y cómo funciona</li>
+    <li>super — constructor y métodos del padre</li>
+    <li>Composición — alternativa a la herencia</li>
+    <li>Herencia vs Composición — cuándo usar cada una</li>
+    <li>Polimorfismo — un objeto, muchas formas</li>
+    <li>Clases abstractas e interfaces</li>
+    <li>Ejemplo completo integrador</li>
+  </ol>
+</div>
+
+<!-- ==================== 1. HERENCIA ==================== -->
+<div class="seccion">
+<h2>1. Herencia</h2>
+
+<p>La herencia permite que una clase <strong>hija</strong> reutilice el código de una clase <strong>padre</strong>. La hija hereda atributos y métodos, y puede añadir los suyos propios o modificar los existentes.</p>
+
+<p>Se expresa con la palabra clave <code>extends</code>.</p>
+
+<pre><code><span class="comentario">// Clase padre (superclase)</span>
+public class Animal {
+    protected String nombre;
+    protected int edad;
+
+    public Animal(String nombre, int edad) {
+        this.nombre = nombre;
+        this.edad   = edad;
+    }
+
+    public void comer() {
+        System.out.println(nombre + " está comiendo.");
+    }
+
+    public void dormir() {
+        System.out.println(nombre + " está durmiendo.");
+    }
+}
+
+<span class="comentario">// Clase hija (subclase) — hereda todo de Animal</span>
+public class Perro extends Animal {
+    private String raza;
+
+    public Perro(String nombre, int edad, String raza) {
+        super(nombre, edad);   <span class="comentario">// inicializa los atributos del padre</span>
+        this.raza = raza;
+    }
+
+    public void ladrar() {    <span class="comentario">// método propio de Perro</span>
+        System.out.println(nombre + " está ladrando.");
+    }
+}
+
+<span class="comentario">// Uso</span>
+Perro p = new Perro("Rex", 3, "Labrador");
+p.comer();    <span class="comentario">// heredado de Animal → "Rex está comiendo."</span>
+p.dormir();   <span class="comentario">// heredado de Animal → "Rex está durmiendo."</span>
+p.ladrar();   <span class="comentario">// propio de Perro  → "Rex está ladrando."</span></code></pre>
+
+<div class="nota">
+  <strong>Regla:</strong> usa herencia cuando la relación es <em>"es un"</em>. Un Perro <strong>es un</strong> Animal. Un Admin <strong>es un</strong> Usuario.
+</div>
+
+<h3>Sobreescritura de métodos (@Override)</h3>
+<p>La hija puede redefinir un método del padre para cambiar su comportamiento:</p>
+
+<pre><code>public class Gato extends Animal {
+
+    public Gato(String nombre, int edad) {
+        super(nombre, edad);
+    }
+
+    @Override
+    public void comer() {
+        <span class="comentario">// comportamiento distinto al del padre</span>
+        System.out.println(nombre + " come con mucha delicadeza.");
+    }
+}
+
+Gato g = new Gato("Misu", 2);
+g.comer();   <span class="comentario">// "Misu come con mucha delicadeza." — versión de Gato</span></code></pre>
+
+<div class="nota">
+  <strong>@Override</strong> no es obligatorio, pero es buena práctica: avisa al compilador de que estás sobreescribiendo un método del padre, y da error si te equivocas en el nombre.
+</div>
+</div>
+
+<!-- ==================== 2. SUPER ==================== -->
+<div class="seccion">
+<h2>2. super — acceder al padre desde la hija</h2>
+
+<p><code>super</code> es una referencia directa a la clase padre. Se usa en dos situaciones:</p>
+
+<table>
+  <tr><th>Uso</th><th>Para qué sirve</th></tr>
+  <tr><td><code>super()</code></td><td>Llama al constructor del padre para inicializar sus atributos</td></tr>
+  <tr><td><code>super.metodo()</code></td><td>Ejecuta el método del padre dentro del método sobreescrito</td></tr>
+</table>
+
+<pre><code>public class Admin extends Usuario {
+    private String departamento;
+
+    public Admin(String nombre, String departamento) {
+        super(nombre);                 <span class="comentario">// constructor del padre</span>
+        this.departamento = departamento;
+    }
+
+    @Override
+    public void mostrarInfo() {
+        super.mostrarInfo();           <span class="comentario">// ejecuta el método del padre primero</span>
+        System.out.println("Departamento: " + departamento);
+        System.out.println("Rol: Administrador");
+    }
+}</code></pre>
+
+<div class="alerta">
+  <strong>Importante:</strong> si el padre tiene constructor con parámetros, <code>super(...)</code> debe ser la <strong>primera línea</strong> del constructor de la hija. Si no, el compilador da error.
+</div>
+</div>
+
+<!-- ==================== 3. COMPOSICIÓN ==================== -->
+<div class="seccion">
+<h2>3. Composición</h2>
+
+<p>La composición consiste en que una clase <strong>contiene</strong> objetos de otras clases como atributos, en lugar de heredar de ellas.</p>
+
+<p>Se usa cuando la relación es <em>"tiene un"</em>: un Coche <strong>tiene un</strong> Motor. Un Jugador <strong>tiene un</strong> Inventario.</p>
+
+<pre><code><span class="comentario">// Clase independiente — no extiende nada</span>
+public class Motor {
+    private int cilindrada;
+    private String tipo;
+
+    public Motor(int cilindrada, String tipo) {
+        this.cilindrada = cilindrada;
+        this.tipo       = tipo;
+    }
+
+    public void arrancar() {
+        System.out.println("Motor " + tipo + " arrancando...");
+    }
+
+    public String getInfo() {
+        return cilindrada + "cc - " + tipo;
+    }
+}
+
+<span class="comentario">// Coche TIENE un Motor (composición)</span>
+public class Coche {
+    private String marca;
+    private Motor motor;     <span class="comentario">// atributo de tipo Motor</span>
+
+    public Coche(String marca, int cilindrada, String tipoMotor) {
+        this.marca = marca;
+        this.motor = new Motor(cilindrada, tipoMotor);   <span class="comentario">// crea el Motor interno</span>
+    }
+
+    public void arrancar() {
+        motor.arrancar();    <span class="comentario">// delega en el Motor</span>
+        System.out.println(marca + " en marcha.");
+    }
+
+    public void mostrarInfo() {
+        System.out.println(marca + " — Motor: " + motor.getInfo());
+    }
+}
+
+<span class="comentario">// Uso</span>
+Coche c = new Coche("Toyota", 1600, "Gasolina");
+c.arrancar();     <span class="comentario">// Motor Gasolina arrancando... / Toyota en marcha.</span>
+c.mostrarInfo();  <span class="comentario">// Toyota — Motor: 1600cc - Gasolina</span></code></pre>
+</div>
+
+<!-- ==================== 4. HERENCIA VS COMPOSICIÓN ==================== -->
+<div class="seccion">
+<h2>4. Herencia vs Composición</h2>
+
+<table>
+  <tr><th></th><th>Herencia</th><th>Composición</th></tr>
+  <tr><td>Relación</td><td>"es un" (Perro <strong>es un</strong> Animal)</td><td>"tiene un" (Coche <strong>tiene un</strong> Motor)</td></tr>
+  <tr><td>Palabra clave</td><td><code>extends</code></td><td>Atributo de la otra clase</td></tr>
+  <tr><td>Flexibilidad</td><td>Menos flexible (acoplamiento fuerte)</td><td>Más flexible (fácil de cambiar)</td></tr>
+  <tr><td>Reutilización</td><td>Reutiliza toda la clase padre</td><td>Reutiliza solo lo que necesitas</td></tr>
+</table>
+
+<div class="bien">
+  <strong>Regla práctica:</strong> si dudas entre herencia y composición, elige <strong>composición</strong>. Es más flexible y genera menos dependencias. Usa herencia solo cuando la relación "es un" sea clara y estable.
+</div>
+
+<pre><code><span class="comentario">// MAL — herencia forzada que no tiene sentido real</span>
+public class Coche extends Motor { ... }   <span class="comentario">// un Coche NO ES un Motor</span>
+
+<span class="comentario">// BIEN — composición</span>
+public class Coche {
+    private Motor motor;                   <span class="comentario">// un Coche TIENE un Motor</span>
+}</code></pre>
+</div>
+
+<!-- ==================== 5. POLIMORFISMO ==================== -->
+<div class="seccion">
+<h2>5. Polimorfismo</h2>
+
+<p>Polimorfismo significa que un mismo tipo de referencia puede comportarse de formas distintas según el objeto real que contiene. En Java se consigue mediante herencia y sobreescritura de métodos.</p>
+
+<pre><code><span class="comentario">// Clase padre</span>
+public class Animal {
+    protected String nombre;
+
+    public Animal(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void hacerSonido() {
+        System.out.println(nombre + " hace un sonido.");
+    }
+}
+
+<span class="comentario">// Clases hijas con comportamiento distinto</span>
+public class Perro extends Animal {
+    public Perro(String nombre) { super(nombre); }
+
+    @Override
+    public void hacerSonido() {
+        System.out.println(nombre + " dice: ¡Guau!");
+    }
+}
+
+public class Gato extends Animal {
+    public Gato(String nombre) { super(nombre); }
+
+    @Override
+    public void hacerSonido() {
+        System.out.println(nombre + " dice: ¡Miau!");
+    }
+}
+
+public class Vaca extends Animal {
+    public Vaca(String nombre) { super(nombre); }
+
+    @Override
+    public void hacerSonido() {
+        System.out.println(nombre + " dice: ¡Muuu!");
+    }
+}</code></pre>
+
+<h3>Polimorfismo en acción</h3>
+<pre><code><span class="comentario">// La variable es de tipo Animal, pero el objeto real puede ser cualquier subclase</span>
+Animal a1 = new Perro("Rex");
+Animal a2 = new Gato("Misu");
+Animal a3 = new Vaca("Lola");
+
+a1.hacerSonido();   <span class="comentario">// Rex dice: ¡Guau!  — ejecuta la versión de Perro</span>
+a2.hacerSonido();   <span class="comentario">// Misu dice: ¡Miau! — ejecuta la versión de Gato</span>
+a3.hacerSonido();   <span class="comentario">// Lola dice: ¡Muuu! — ejecuta la versión de Vaca</span></code></pre>
+
+<div class="nota">
+  <strong>Clave:</strong> el tipo de la variable (<code>Animal</code>) decide qué métodos están disponibles. El tipo del objeto real (<code>Perro</code>, <code>Gato</code>...) decide qué versión del método se ejecuta.
+</div>
+
+<h3>Polimorfismo con listas</h3>
+<p>La utilidad real del polimorfismo se ve cuando trabajas con colecciones:</p>
+
+<pre><code>import java.util.ArrayList;
+
+ArrayList&lt;Animal&gt; animales = new ArrayList&lt;&gt;();
+animales.add(new Perro("Rex"));
+animales.add(new Gato("Misu"));
+animales.add(new Vaca("Lola"));
+animales.add(new Perro("Toby"));
+
+<span class="comentario">// Un solo bucle, cada animal hace su sonido correcto</span>
+for (Animal a : animales) {
+    a.hacerSonido();
+}
+
+<span class="comentario">// Salida:
+// Rex dice: ¡Guau!
+// Misu dice: ¡Miau!
+// Lola dice: ¡Muuu!
+// Toby dice: ¡Guau!</span></code></pre>
+</div>
+
+<!-- ==================== 6. CLASES ABSTRACTAS E INTERFACES ==================== -->
+<div class="seccion">
+<h2>6. Clases abstractas e interfaces</h2>
+
+<h3>Clase abstracta</h3>
+<p>Una clase abstracta no se puede instanciar directamente. Define una estructura base que las subclases deben completar.</p>
+
+<pre><code>public abstract class Figura {
+    protected String color;
+
+    public Figura(String color) {
+        this.color = color;
+    }
+
+    <span class="comentario">// método abstracto — las subclases OBLIGATORIAMENTE deben implementarlo</span>
+    public abstract double calcularArea();
+
+    <span class="comentario">// método normal — se hereda tal cual</span>
+    public void mostrarColor() {
+        System.out.println("Color: " + color);
+    }
+}
+
+public class Circulo extends Figura {
+    private double radio;
+
+    public Circulo(String color, double radio) {
+        super(color);
+        this.radio = radio;
+    }
+
+    @Override
+    public double calcularArea() {
+        return Math.PI * radio * radio;
+    }
+}
+
+public class Rectangulo extends Figura {
+    private double base, altura;
+
+    public Rectangulo(String color, double base, double altura) {
+        super(color);
+        this.base   = base;
+        this.altura = altura;
+    }
+
+    @Override
+    public double calcularArea() {
+        return base * altura;
+    }
+}
+
+<span class="comentario">// Uso con polimorfismo</span>
+Figura f1 = new Circulo("rojo", 5);
+Figura f2 = new Rectangulo("azul", 4, 6);
+
+System.out.println(f1.calcularArea());  <span class="comentario">// 78.53...</span>
+System.out.println(f2.calcularArea());  <span class="comentario">// 24.0</span></code></pre>
+
+<h3>Interface</h3>
+<p>Una interface define un contrato: qué métodos debe tener una clase, sin decir cómo los implementa. Una clase puede implementar varias interfaces.</p>
+
+<pre><code>public interface Volador {
+    void volar();   <span class="comentario">// todas las clases que implementen esto deben definir volar()</span>
+}
+
+public interface Nadador {
+    void nadar();
+}
+
+<span class="comentario">// Una clase puede implementar varias interfaces a la vez</span>
+public class Pato extends Animal implements Volador, Nadador {
+
+    public Pato(String nombre) {
+        super(nombre);
+    }
+
+    @Override
+    public void volar() {
+        System.out.println(nombre + " está volando.");
+    }
+
+    @Override
+    public void nadar() {
+        System.out.println(nombre + " está nadando.");
+    }
+
+    @Override
+    public void hacerSonido() {
+        System.out.println(nombre + " dice: ¡Cuac!");
+    }
+}</code></pre>
+
+<h3>Diferencias clave</h3>
+<table>
+  <tr><th></th><th>Clase abstracta</th><th>Interface</th></tr>
+  <tr><td>Puede tener atributos</td><td>Sí</td><td>Solo constantes</td></tr>
+  <tr><td>Puede tener constructor</td><td>Sí</td><td>No</td></tr>
+  <tr><td>Puede tener métodos con cuerpo</td><td>Sí</td><td>Solo con <code>default</code></td></tr>
+  <tr><td>Herencia múltiple</td><td>No (solo una clase padre)</td><td>Sí (varias interfaces)</td></tr>
+  <tr><td>Cuándo usarla</td><td>Clases relacionadas con código común</td><td>Capacidades compartidas entre clases no relacionadas</td></tr>
+</table>
+</div>
+
+<!-- ==================== 7. EJEMPLO COMPLETO ==================== -->
+<div class="seccion">
+<h2>7. Ejemplo completo — Sistema de empleados</h2>
+
+<p>Un ejemplo que combina herencia, composición y polimorfismo:</p>
+
+<pre><code><span class="comentario">// Interface</span>
+public interface Evaluable {
+    String evaluarRendimiento();
+}
+
+<span class="comentario">// Clase independiente para composición</span>
+public class Departamento {
+    private String nombre;
+    private String ubicacion;
+
+    public Departamento(String nombre, String ubicacion) {
+        this.nombre    = nombre;
+        this.ubicacion = ubicacion;
+    }
+
+    public String getNombre() { return nombre; }
+}
+
+<span class="comentario">// Clase padre abstracta</span>
+public abstract class Empleado implements Evaluable {
+    protected String nombre;
+    protected double salario;
+    protected Departamento departamento;   <span class="comentario">// composición</span>
+
+    public Empleado(String nombre, double salario, Departamento departamento) {
+        this.nombre       = nombre;
+        this.salario      = salario;
+        this.departamento = departamento;
+    }
+
+    public abstract double calcularBonus();   <span class="comentario">// cada tipo calcula distinto</span>
+
+    public void mostrarInfo() {
+        System.out.println("Empleado: " + nombre);
+        System.out.println("Salario:  " + salario);
+        System.out.println("Depto:    " + departamento.getNombre());
+        System.out.println("Bonus:    " + calcularBonus());
+        System.out.println("Evaluación: " + evaluarRendimiento());
+    }
+}
+
+<span class="comentario">// Subclase 1</span>
+public class Desarrollador extends Empleado {
+    private int proyectosCompletados;
+
+    public Desarrollador(String nombre, double salario,
+                         Departamento dep, int proyectos) {
+        super(nombre, salario, dep);
+        this.proyectosCompletados = proyectos;
+    }
+
+    @Override
+    public double calcularBonus() {
+        return salario * 0.10 * proyectosCompletados;
+    }
+
+    @Override
+    public String evaluarRendimiento() {
+        return proyectosCompletados > 3 ? "Excelente" : "Aceptable";
+    }
+}
+
+<span class="comentario">// Subclase 2</span>
+public class Comercial extends Empleado {
+    private double ventasTotales;
+
+    public Comercial(String nombre, double salario,
+                     Departamento dep, double ventas) {
+        super(nombre, salario, dep);
+        this.ventasTotales = ventas;
+    }
+
+    @Override
+    public double calcularBonus() {
+        return ventasTotales * 0.05;
+    }
+
+    @Override
+    public String evaluarRendimiento() {
+        return ventasTotales > 50000 ? "Sobresaliente" : "Normal";
+    }
+}
+
+<span class="comentario">// Main — polimorfismo en acción</span>
+public class Main {
+    public static void main(String[] args) {
+        Departamento ti      = new Departamento("Tecnología", "Madrid");
+        Departamento ventas  = new Departamento("Ventas", "Barcelona");
+
+        ArrayList&lt;Empleado&gt; empleados = new ArrayList&lt;&gt;();
+        empleados.add(new Desarrollador("Ana",   35000, ti,     5));
+        empleados.add(new Desarrollador("Luis",  32000, ti,     2));
+        empleados.add(new Comercial("Marta",     28000, ventas, 80000));
+        empleados.add(new Comercial("Carlos",    28000, ventas, 30000));
+
+        for (Empleado e : empleados) {
+            e.mostrarInfo();       <span class="comentario">// cada uno calcula su bonus y evaluación</span>
+            System.out.println("---");
+        }
+    }
+}</code></pre>
+
+<h3>Qué demuestra este ejemplo</h3>
+<table>
+  <tr><th>Concepto</th><th>Dónde aparece</th></tr>
+  <tr><td>Herencia</td><td><code>Desarrollador</code> y <code>Comercial</code> extienden <code>Empleado</code></td></tr>
+  <tr><td>Composición</td><td><code>Empleado</code> tiene un <code>Departamento</code></td></tr>
+  <tr><td>Polimorfismo</td><td>Lista de <code>Empleado</code> llama a <code>calcularBonus()</code> distinto para cada tipo</td></tr>
+  <tr><td>Clase abstracta</td><td><code>Empleado</code> no se puede instanciar directamente</td></tr>
+  <tr><td>Interface</td><td><code>Evaluable</code> obliga a implementar <code>evaluarRendimiento()</code></td></tr>
+</table>
+</div>
+
+</body>
+</html>

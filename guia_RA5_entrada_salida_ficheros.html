@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>RA5 - Entrada/Salida y Ficheros</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 15px; max-width: 900px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.6; }
+  h1 { color: #1a1a2e; border-bottom: 3px solid #1a1a2e; padding-bottom: 10px; font-size: 26px; }
+  h2 { color: #16213e; border-bottom: 2px solid #ccc; padding-bottom: 6px; margin-top: 50px; font-size: 22px; }
+  h3 { color: #0f3460; margin-top: 24px; font-size: 17px; }
+  h4 { color: #333; margin-top: 18px; font-size: 15px; }
+  p, li { font-family: Arial, sans-serif; font-size: 15px; }
+  pre { background: #f4f4f4; border-left: 4px solid #0f3460; padding: 16px; border-radius: 4px; overflow-x: auto; margin: 12px 0; }
+  code { font-family: Consolas, monospace; font-size: 14px; }
+  pre code { font-family: Consolas, monospace; font-size: 14px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
+  th { background: #1a1a2e; color: white; padding: 10px 12px; text-align: left; font-family: Arial, sans-serif; }
+  td { border: 1px solid #ddd; padding: 8px 12px; font-family: Arial, sans-serif; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .mal  { background: #fdecea; border-left: 4px solid #e53935; padding: 14px 16px; border-radius: 4px; margin: 10px 0; }
+  .bien { background: #e8f5e9; border-left: 4px solid #43a047; padding: 14px 16px; border-radius: 4px; margin: 10px 0; }
+  .nota { background: #e8f4f8; border-left: 4px solid #0f3460; padding: 12px 15px; border-radius: 4px; margin: 14px 0; }
+  .alerta { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 15px; border-radius: 4px; margin: 14px 0; }
+  .checklist { background: #f0f4ff; border: 1px solid #c0cfee; border-radius: 6px; padding: 16px 24px; margin: 20px 0; }
+  .checklist li { list-style: none; padding: 4px 0; }
+  .checklist li::before { content: "☐  "; font-size: 16px; }
+  .modelo-header { background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 6px; margin-top: 40px; }
+  .modelo-header h2 { color: white; border: none; margin: 0; font-size: 20px; }
+  .indice { background: #f0f4ff; border: 1px solid #c0cfee; border-radius: 6px; padding: 16px 24px; margin-bottom: 36px; }
+  .indice h3 { border: none; margin-top: 0; color: #1a1a2e; }
+  .seccion { page-break-inside: avoid; }
+  .label-mal  { display: inline-block; background: #e53935; color: white; padding: 2px 10px; border-radius: 3px; font-size: 13px; font-family: Arial, sans-serif; margin-bottom: 6px; }
+  .label-bien { display: inline-block; background: #43a047; color: white; padding: 2px 10px; border-radius: 3px; font-size: 13px; font-family: Arial, sans-serif; margin-bottom: 6px; }
+  .tag-enunciado { display: inline-block; background: #0f3460; color: white; padding: 3px 12px; border-radius: 3px; font-size: 13px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<h1>RA5 — Entrada/Salida y Ficheros</h1>
+<p><em>4 Modelos Unificados · Guía Completa Examen · Java POO · 2026</em></p>
+
+<div class="indice">
+  <h3>Contenido</h3>
+  <ol>
+    <li>Introducción y competencias</li>
+    <li>Modelo 1 — Biblioteca Digital (lectura CSV)</li>
+    <li>Modelo 2 — Plataforma Streaming (validación)</li>
+    <li>Modelo 3 — Gestión Hotel (escritura append)</li>
+    <li>Modelo 4 — Tienda Videojuegos (lectura + acumulación)</li>
+    <li>Conceptos clave RA5</li>
+    <li>Patrones para el examen</li>
+    <li>Errores comunes a evitar</li>
+    <li>Checklist para el examen</li>
+    <li>Tabla comparativa 4 modelos</li>
+    <li>Estrategia de estudio y consejos</li>
+  </ol>
+</div>
+
+<!-- ==================== INTRODUCCIÓN ==================== -->
+<div class="seccion">
+<h2>1. Introducción y competencias</h2>
+<p>Este RA cubre lectura/escritura de ficheros, manejo de excepciones en I/O, parsing de datos formateados (CSV) y acumulación de información.</p>
+
+<h3>Competencias a dominar</h3>
+<table>
+  <tr><th>Competencia</th><th>Descripción</th></tr>
+  <tr><td><code>try-with-resources</code></td><td>Cierre automático de recursos (Java 7+)</td></tr>
+  <tr><td><code>BufferedReader / FileWriter</code></td><td>Lectura y escritura eficiente de ficheros</td></tr>
+  <tr><td><code>split()</code></td><td>Parsing de datos CSV</td></tr>
+  <tr><td>Excepciones específicas</td><td><code>FileNotFoundException</code>, <code>IOException</code>, <code>NumberFormatException</code></td></tr>
+  <tr><td>Validación de datos</td><td>Comprobar longitud, formato y valores antes de parsear</td></tr>
+</table>
+</div>
+
+<!-- ==================== MODELO 1 ==================== -->
+<div class="seccion">
+<div class="modelo-header"><h2>Modelo 1 — Biblioteca Digital</h2></div>
+
+<span class="tag-enunciado">Enunciado (8 puntos)</span>
+<p><strong>Contexto:</strong> Lectura de fichero CSV con libros disponibles.</p>
+<p><strong>Tarea:</strong> Explica qué hace el código, detecta 2 problemas importantes y reescríbelo de manera más segura.</p>
+
+<h3>Código Problemático</h3>
+<div class="mal"><span class="label-mal">MAL</span>
+<pre><code>public static void mostrarLibros(String nomFichero) {
+    try {
+        BufferedReader br =
+            new BufferedReader(new FileReader(nomFichero));
+        String linea = br.readLine();
+        while (linea != null) {
+            String[] campos = linea.split(";");
+            if (campos[2].equals("DISPONIBLE")) {
+                System.out.println(campos[0] + " - " + campos[1]);
+            }
+            linea = br.readLine();
+        }
+    } catch (Exception e) {
+        System.out.println("Error");
+    }
+}</code></pre></div>
+
+<h3>Problemas Detectados</h3>
+
+<h4>Problema 1: Fuga de recursos</h4>
+<ul>
+  <li>El <code>BufferedReader</code> <strong>nunca se cierra</strong></li>
+  <li>Cuando el método termina, el fichero queda abierto</li>
+  <li>Solución: usar <code>try-with-resources</code> o <code>br.close()</code></li>
+</ul>
+
+<h4>Problema 2: Captura genérica de Exception</h4>
+<ul>
+  <li><code>catch (Exception e)</code> captura TODO — mala práctica</li>
+  <li>No sabemos qué error ocurrió (fichero no existe, formato incorrecto…)</li>
+  <li>Solución: capturar excepciones específicas</li>
+</ul>
+
+<h4>Problema 3 (BONUS): Sin validación de índices</h4>
+<ul>
+  <li>Si una línea no tiene 3 campos, <code>campos[2]</code> causa <code>ArrayIndexOutOfBoundsException</code></li>
+  <li>No hay comprobación de <code>campos.length</code></li>
+</ul>
+
+<h3>Código Corregido</h3>
+<div class="bien"><span class="label-bien">BIEN</span>
+<pre><code>public static void mostrarLibros(String nomFichero)
+        throws FileNotFoundException, IOException {
+
+    try (BufferedReader br =
+            new BufferedReader(new FileReader(nomFichero))) {
+
+        String linea;
+        while ((linea = br.readLine()) != null) {
+            linea = linea.trim();
+            if (linea.isEmpty()) continue;
+
+            try {
+                String[] campos = linea.split(";");
+
+                if (campos.length &lt; 3) {
+                    System.err.println("Línea malformada: " + linea);
+                    continue;
+                }
+
+                if (campos[2].trim().equals("DISPONIBLE")) {
+                    System.out.println(campos[0].trim() + " - " + campos[1].trim());
+                }
+
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.err.println("Formato incorrecto");
+            }
+        }
+
+    } catch (FileNotFoundException e) {
+        System.err.println("ERROR: Fichero no encontrado");
+    } catch (IOException e) {
+        System.err.println("ERROR I/O: " + e.getMessage());
+    }
+}</code></pre></div>
+
+<h3>Cambios Clave</h3>
+<table>
+  <tr><th>Aspecto</th><th>Antes</th><th>Después</th></tr>
+  <tr><td>Cierre</td><td><code>br.close()</code> manual (nunca ejecutado)</td><td><code>try-with-resources</code></td></tr>
+  <tr><td>Excepciones</td><td><code>catch(Exception)</code></td><td>Específicas</td></tr>
+  <tr><td>Validación</td><td>Sin comprobar <code>length</code></td><td><code>length check</code></td></tr>
+  <tr><td>Espacios</td><td>Sin limpiar</td><td><code>trim()</code></td></tr>
+</table>
+
+<h3>Pregunta Teórica (2 puntos)</h3>
+<p><strong>¿Por qué capturar directamente <code>Exception</code> es mala práctica?</strong></p>
+<p>Capturar <code>Exception</code> genérica <strong>oculta los problemas reales</strong>:</p>
+<ol>
+  <li><strong>Falta de información:</strong> no sabes qué falló — ¿no existe el fichero? ¿formato incorrecto?</li>
+  <li><strong>Recuperación imposible:</strong> sin saber el error, no puedes reaccionar adecuadamente</li>
+  <li><strong>Enmascara bugs:</strong> puede capturar <code>NullPointerException</code>, <code>ArithmeticException</code>… errores que deberían fallar visiblemente</li>
+</ol>
+<div class="bien"><span class="label-bien">Manera Correcta</span>
+<pre><code>try {
+    // código I/O
+} catch (FileNotFoundException e) {
+    // Fichero no existe: actuar diferente
+} catch (IOException e) {
+    // Error I/O: reintentar, logs, etc.
+} catch (NumberFormatException e) {
+    // Datos inválidos: saltarse línea
+}</code></pre></div>
+</div>
+
+<!-- ==================== MODELO 2 ==================== -->
+<div class="seccion">
+<div class="modelo-header"><h2>Modelo 2 — Plataforma Streaming</h2></div>
+
+<span class="tag-enunciado">Enunciado (8 puntos)</span>
+<p>Este método pide una puntuación entre 0 y 10 y la muestra con un decimal.</p>
+<p><strong>Tarea:</strong> Detecta los dos errores y corrígelos.</p>
+
+<h3>Código con Errores</h3>
+<div class="mal"><span class="label-mal">MAL</span>
+<pre><code>public static float pedirPuntuacion(Scanner sc) {
+    System.out.print("Puntuación: ");
+    float puntuacion = sc.nextFloat();
+
+    if (puntuacion &lt; 0 &amp;&amp; puntuacion &gt; 10) {    // ERROR 1
+        throw new IllegalArgumentException("Puntuación incorrecta");
+    }
+
+    System.out.printf("Has introducido: %d puntos", puntuacion);  // ERROR 2
+    return puntuacion;
+}</code></pre></div>
+
+<h3>Errores Detectados</h3>
+
+<h4>Error 1: Lógica de validación incorrecta</h4>
+<p>El problema está en: <code>if (puntuacion &lt; 0 &amp;&amp; puntuacion &gt; 10)</code></p>
+<p><strong>¿Por qué falla?</strong> Es imposible que un número sea menor que 0 <strong>Y</strong> mayor que 10 al mismo tiempo. La validación nunca se ejecuta.</p>
+<div class="bien"><span class="label-bien">Solución: usar || (OR)</span>
+<pre><code>if (puntuacion &lt; 0 || puntuacion &gt; 10)</code></pre></div>
+
+<h4>Error 2: Especificador de formato incorrecto</h4>
+<p>El problema está en: <code>System.out.printf("Has introducido: %d puntos", puntuacion)</code></p>
+<p><strong>¿Por qué falla?</strong> <code>%d</code> es para enteros (<code>int</code>). <code>puntuacion</code> es <code>float</code> (decimales).</p>
+<div class="bien"><span class="label-bien">Solución: usar %.1f</span>
+<pre><code>System.out.printf("Has introducido: %.1f puntos\n", puntuacion);</code></pre></div>
+
+<h3>Código Corregido</h3>
+<div class="bien"><span class="label-bien">BIEN</span>
+<pre><code>public static float pedirPuntuacion(Scanner sc) {
+    System.out.print("Puntuación: ");
+    float puntuacion = sc.nextFloat();
+
+    // ERROR 1 CORREGIDO: && por ||
+    if (puntuacion &lt; 0 || puntuacion &gt; 10) {
+        throw new IllegalArgumentException("Puntuación incorrecta");
+    }
+
+    // ERROR 2 CORREGIDO: %d por %.1f
+    System.out.printf("Has introducido: %.1f puntos\n", puntuacion);
+    return puntuacion;
+}</code></pre></div>
+
+<h3>Pregunta Teórica (2 puntos)</h3>
+<p><strong>¿Cuál es la diferencia entre <code>%d</code>, <code>%f</code> y <code>%.1f</code> en printf?</strong></p>
+<table>
+  <tr><th>Especificador</th><th>Tipo</th><th>Ejemplo</th><th>Resultado</th></tr>
+  <tr><td><code>%d</code></td><td>entero (int)</td><td><code>%d</code> con 5</td><td>5</td></tr>
+  <tr><td><code>%f</code></td><td>float (6 decimales por defecto)</td><td><code>%f</code> con 5.7</td><td>5.700000</td></tr>
+  <tr><td><code>%.1f</code></td><td>float (1 decimal exacto)</td><td><code>%.1f</code> con 5.7</td><td>5.7</td></tr>
+  <tr><td><code>%.2f</code></td><td>float (2 decimales)</td><td><code>%.2f</code> con 5.7</td><td>5.70</td></tr>
+</table>
+
+<h4>Ejemplos</h4>
+<pre><code>double num = 19.567;
+System.out.printf("%d",   num);   // Error — %d es para enteros
+System.out.printf("%f",   num);   // 19.567000
+System.out.printf("%.2f", num);   // 19.57
+System.out.printf("%.1f", num);   // 19.6
+System.out.printf("%.0f", num);   // 20 (redondea)</code></pre>
+</div>
+
+<!-- ==================== MODELO 3 ==================== -->
+<div class="seccion">
+<div class="modelo-header"><h2>Modelo 3 — Gestión Hotel</h2></div>
+
+<span class="tag-enunciado">Enunciado (8 puntos)</span>
+<p>Escribe el método <code>guardarReserva()</code> que añada una línea al fichero.</p>
+<p><strong>Requisitos:</strong> Formato <code>cliente;habitacion</code> · NO sobrescribir reservas anteriores (modo append) · Manejar <code>IOException</code> correctamente.</p>
+
+<h3>Solución 1: FileWriter (Básica)</h3>
+<pre><code>import java.io.FileWriter;
+import java.io.IOException;
+
+public static void guardarReserva(
+        String nomFichero, String cliente, int habitacion)
+        throws IOException {
+
+    try (FileWriter fw = new FileWriter(nomFichero, true)) {
+        // true = modo append (añadir, no sobrescribir)
+        fw.write(cliente + ";" + habitacion + "\n");
+    } catch (IOException e) {
+        System.err.println("Error: " + e.getMessage());
+        throw e;
+    }
+}</code></pre>
+
+<h3>Solución 2: BufferedWriter (Recomendada)</h3>
+<div class="bien"><span class="label-bien">RECOMENDADA</span>
+<pre><code>import java.io.*;
+
+public static void guardarReserva(
+        String nomFichero, String cliente, int habitacion)
+        throws IOException {
+
+    try (BufferedWriter bw = new BufferedWriter(
+            new FileWriter(nomFichero, true))) {
+        bw.write(cliente + ";" + habitacion);
+        bw.newLine();   // más legible que "\n"
+    } catch (IOException e) {
+        System.err.println("Error: " + e.getMessage());
+        throw e;
+    }
+}</code></pre></div>
+
+<h3>Solución 3: Files (Moderna — Java 7+)</h3>
+<pre><code>import java.nio.file.*;
+
+public static void guardarReserva(
+        String nomFichero, String cliente, int habitacion)
+        throws IOException {
+
+    String linea = cliente + ";" + habitacion + "\n";
+    Files.write(
+        Paths.get(nomFichero),
+        linea.getBytes(),
+        StandardOpenOption.APPEND,
+        StandardOpenOption.CREATE
+    );
+}</code></pre>
+
+<h3>Uso (igual en las 3 soluciones)</h3>
+<pre><code>try {
+    guardarReserva("reservas.txt", "Juan García",  101);
+    guardarReserva("reservas.txt", "María López",  205);
+    guardarReserva("reservas.txt", "Carlos Ruiz",  108);
+} catch (IOException e) {
+    System.out.println("Fallo al guardar");
+}</code></pre>
+<p><strong>Fichero resultante (reservas.txt):</strong></p>
+<pre><code>Juan García;101
+María López;205
+Carlos Ruiz;108</code></pre>
+
+<h3>Punto Clave: Append vs Sobrescribir</h3>
+<div class="mal"><span class="label-mal">SOBRESCRIBE — peligro de pérdida de datos</span>
+<pre><code>new FileWriter(nomFichero)        // false implícito
+new FileWriter(nomFichero, false) // sobrescribe
+
+FileWriter fw1 = new FileWriter("datos.txt");
+fw1.write("Día 1");
+fw1.close();
+// Después:
+FileWriter fw2 = new FileWriter("datos.txt");
+fw2.write("Día 2");
+fw2.close();
+// Resultado: solo "Día 2" — perdió Día 1</code></pre></div>
+
+<div class="bien"><span class="label-bien">APPEND — mantiene datos</span>
+<pre><code>new FileWriter(nomFichero, true)  // append
+
+FileWriter fw1 = new FileWriter("datos.txt", true);
+fw1.write("Día 1\n");
+fw1.close();
+// Después:
+FileWriter fw2 = new FileWriter("datos.txt", true);
+fw2.write("Día 2\n");
+fw2.close();
+// Resultado: "Día 1\nDía 2"</code></pre></div>
+
+<h3>Pregunta Teórica (2 puntos)</h3>
+<p><strong>¿Diferencia entre modo sobrescribir y modo append?</strong></p>
+<table>
+  <tr><th>Aspecto</th><th>Sobrescribir</th><th>Append</th></tr>
+  <tr><td>Fichero existente</td><td>Borra contenido anterior</td><td>Mantiene contenido</td></tr>
+  <tr><td>Modo</td><td><code>false</code> o nada</td><td><code>true</code></td></tr>
+  <tr><td>Caso de uso</td><td>Primera escritura</td><td>Añadir líneas</td></tr>
+  <tr><td>Ejemplo</td><td>Logs iniciales</td><td>Logs acumulados</td></tr>
+</table>
+</div>
+
+<!-- ==================== MODELO 4 ==================== -->
+<div class="seccion">
+<div class="modelo-header"><h2>Modelo 4 — Tienda Videojuegos</h2></div>
+
+<span class="tag-enunciado">Enunciado (8 puntos)</span>
+<p>Lees un fichero CSV con ventas: <code>nombreVideojuego;precio</code></p>
+<p><strong>Tarea:</strong> Explica qué hace, completa el TODO y mejora con validaciones.</p>
+
+<h3>Código Incompleto</h3>
+<div class="mal"><span class="label-mal">INCOMPLETO</span>
+<pre><code>double total = 0;
+try (BufferedReader br =
+        new BufferedReader(new FileReader("ventas.txt"))) {
+    String linea;
+    while ((linea = br.readLine()) != null) {
+        String[] partes = linea.split(";");
+        String nombre  = partes[0];
+        double precio  = Double.parseDouble(partes[1]);
+        // TODO: acumular total y mostrar
+    }
+    System.out.printf("Total: %.2f euros", total);
+} catch (IOException e) {
+    System.out.println("Error lectura");
+}</code></pre></div>
+
+<h3>Solución Simple</h3>
+<pre><code>double total = 0;
+try (BufferedReader br =
+        new BufferedReader(new FileReader("ventas.txt"))) {
+    String linea;
+    while ((linea = br.readLine()) != null) {
+        String[] partes = linea.split(";");
+        String nombre  = partes[0];
+        double precio  = Double.parseDouble(partes[1]);
+
+        total += precio;                                          // acumular
+        System.out.printf("%s: %.2f€\n", nombre, precio);        // mostrar
+    }
+    System.out.printf("\nTotal: %.2f euros\n", total);
+} catch (IOException e) {
+    System.out.println("Error lectura");
+} catch (NumberFormatException e) {
+    System.out.println("Precio inválido");
+}</code></pre>
+
+<h3>Solución Robusta (Recomendada)</h3>
+<div class="bien"><span class="label-bien">RECOMENDADA</span>
+<pre><code>double total = 0;
+int lineasOK = 0, lineasError = 0;
+
+try (BufferedReader br =
+        new BufferedReader(new FileReader("ventas.txt"))) {
+    String linea;
+    int numLinea = 0;
+
+    while ((linea = br.readLine()) != null) {
+        numLinea++;
+        linea = linea.trim();
+        if (linea.isEmpty()) continue;
+
+        try {
+            String[] partes = linea.split(";");
+
+            if (partes.length &lt; 2) {
+                System.err.println("Línea " + numLinea + ": faltan campos");
+                lineasError++;
+                continue;
+            }
+
+            String nombre = partes[0].trim();
+            double precio = Double.parseDouble(partes[1].trim());
+
+            if (precio &lt; 0) {
+                System.err.println("Línea " + numLinea + ": precio negativo");
+                lineasError++;
+                continue;
+            }
+
+            total += precio;
+            lineasOK++;
+            System.out.printf("%s: %.2f€\n", nombre, precio);
+
+        } catch (NumberFormatException e) {
+            System.err.println("Línea " + numLinea + ": precio no válido");
+            lineasError++;
+        }
+    }
+
+    System.out.printf("\n=== RESUMEN ===\n");
+    System.out.printf("Válidas: %d\n",  lineasOK);
+    System.out.printf("Errores: %d\n",  lineasError);
+    System.out.printf("Total:   %.2f€\n", total);
+
+} catch (FileNotFoundException e) {
+    System.err.println("ERROR: Fichero no encontrado");
+} catch (IOException e) {
+    System.err.println("ERROR I/O: " + e.getMessage());
+}</code></pre></div>
+
+<h3>Pregunta Teórica (2 puntos)</h3>
+<p><strong>¿Por qué <code>Double.parseDouble()</code> genera excepciones con datos mal formateados?</strong></p>
+<p><code>Double.parseDouble()</code> lanza <code>NumberFormatException</code> cuando el String no puede convertirse a número válido.</p>
+<table>
+  <tr><th>Valor</th><th>Problema</th></tr>
+  <tr><td><code>"Gratis"</code></td><td>No es número</td></tr>
+  <tr><td><code>"19,99"</code></td><td>Coma en lugar de punto</td></tr>
+  <tr><td><code>"19 euros"</code></td><td>Contiene texto extra</td></tr>
+  <tr><td><code>""</code></td><td>Vacío</td></tr>
+  <tr><td><code>"1.234,56"</code></td><td>Múltiples separadores</td></tr>
+</table>
+<h4>Cómo manejarlo</h4>
+<pre><code>try {
+    double precio = Double.parseDouble(partes[1].trim());
+} catch (NumberFormatException e) {
+    System.err.println("Precio no válido");
+    continue;   // saltar línea problemática
+}</code></pre>
+</div>
+
+<!-- ==================== CONCEPTOS CLAVE ==================== -->
+<div class="seccion">
+<h2>6. Conceptos Clave RA5</h2>
+
+<h3>1. try-with-resources (Java 7+)</h3>
+<p>Cierra automáticamente el recurso al salir del bloque:</p>
+<div class="mal"><span class="label-mal">VIEJO — cierre manual</span>
+<pre><code>BufferedReader br = null;
+try {
+    br = new BufferedReader(new FileReader("archivo.txt"));
+    // código
+} finally {
+    if (br != null) br.close();
+}</code></pre></div>
+<div class="bien"><span class="label-bien">MODERNO — cierre automático</span>
+<pre><code>try (BufferedReader br = new BufferedReader(new FileReader("archivo.txt"))) {
+    // código
+}   // se cierra automáticamente aquí</code></pre></div>
+
+<h3>2. Lectura línea a línea</h3>
+<pre><code>String linea;
+while ((linea = br.readLine()) != null) {
+    // readLine() retorna String o null (EOF)
+    // null = fin de fichero
+}</code></pre>
+
+<h3>3. Parsing CSV</h3>
+<pre><code>String linea = "Elden Ring;59.99";
+String[] campos = linea.split(";");
+// campos[0] = "Elden Ring"
+// campos[1] = "59.99"</code></pre>
+
+<h3>4. Excepciones en E/S</h3>
+<pre><code>try {
+    // operación I/O
+} catch (FileNotFoundException e) {
+    // fichero no existe
+} catch (NumberFormatException e) {
+    // número inválido
+} catch (IOException e) {
+    // error I/O genérico — siempre al final
+}</code></pre>
+</div>
+
+<!-- ==================== PATRONES ==================== -->
+<div class="seccion">
+<h2>7. Patrones para el Examen</h2>
+
+<h3>Patrón A: Lectura + Acumulación</h3>
+<pre><code>double total = 0;
+try (BufferedReader br =
+        new BufferedReader(new FileReader(fichero))) {
+    String linea;
+    while ((linea = br.readLine()) != null) {
+        total += procesarLinea(linea);
+    }
+    System.out.println("Total: " + total);
+} catch (IOException e) { }</code></pre>
+
+<h3>Patrón B: Lectura + Parsing + Validación</h3>
+<pre><code>try (BufferedReader br =
+        new BufferedReader(new FileReader(fichero))) {
+    String linea;
+    int numLinea = 0;
+    while ((linea = br.readLine()) != null) {
+        numLinea++;
+        try {
+            String[] partes = linea.split(delimitador);
+            if (partes.length &lt; 2) {
+                System.err.println("Error línea " + numLinea);
+                continue;
+            }
+            // procesar partes[0], partes[1]...
+        } catch (NumberFormatException e) {
+            System.err.println("Dato no válido línea " + numLinea);
+        }
+    }
+} catch (IOException e) { }</code></pre>
+
+<h3>Patrón C: Escritura con Append</h3>
+<pre><code>try (FileWriter fw = new FileWriter(fichero, true)) {   // true = append
+    fw.write("Datos a añadir");
+    fw.write("\n");
+} catch (IOException e) { }</code></pre>
+</div>
+
+<!-- ==================== ERRORES COMUNES ==================== -->
+<div class="seccion">
+<h2>8. Errores Comunes a Evitar</h2>
+
+<h3>Error 1: No manejar NumberFormatException</h3>
+<div class="mal"><span class="label-mal">MAL</span>
+<pre><code>double precio = Double.parseDouble(partes[1]);</code></pre></div>
+<div class="bien"><span class="label-bien">BIEN</span>
+<pre><code>try {
+    double precio = Double.parseDouble(partes[1].trim());
+} catch (NumberFormatException e) {
+    System.err.println("Precio inválido");
+    continue;
+}</code></pre></div>
+
+<h3>Error 2: No validar índices del array</h3>
+<div class="mal"><span class="label-mal">MAL — puede fallar si falta campo</span>
+<pre><code>String nombre = partes[0];
+double precio = Double.parseDouble(partes[1]);</code></pre></div>
+<div class="bien"><span class="label-bien">BIEN</span>
+<pre><code>if (partes.length &lt; 2) {
+    System.err.println("Formato incorrecto");
+    continue;
+}</code></pre></div>
+
+<h3>Error 3: No usar trim()</h3>
+<div class="mal"><span class="label-mal">MAL — espacios causan error</span>
+<pre><code>double precio = Double.parseDouble(partes[1]);</code></pre></div>
+<div class="bien"><span class="label-bien">BIEN</span>
+<pre><code>double precio = Double.parseDouble(partes[1].trim());</code></pre></div>
+
+<h3>Error 4: No cerrar fichero</h3>
+<div class="mal"><span class="label-mal">MAL</span>
+<pre><code>BufferedReader br = new BufferedReader(new FileReader("archivo.txt"));
+String linea = br.readLine();   // br no se cierra</code></pre></div>
+<div class="bien"><span class="label-bien">BIEN</span>
+<pre><code>try (BufferedReader br = new BufferedReader(new FileReader("archivo.txt"))) {
+    String linea = br.readLine();   // se cierra automáticamente
+}</code></pre></div>
+
+<h3>Error 5: Lógica de validación incorrecta</h3>
+<div class="mal"><span class="label-mal">MAL — nunca se cumple simultáneamente</span>
+<pre><code>if (valor &lt; 0 &amp;&amp; valor &gt; 10)   // imposible</code></pre></div>
+<div class="bien"><span class="label-bien">BIEN</span>
+<pre><code>if (valor &lt; 0 || valor &gt; 10)   // correcto</code></pre></div>
+</div>
+
+<!-- ==================== CHECKLIST ==================== -->
+<div class="seccion">
+<h2>9. Checklist para el Examen</h2>
+<div class="checklist">
+  <p>Antes de entregar tu respuesta de RA5:</p>
+  <ul>
+    <li>¿Identifiqué qué hace el código?</li>
+    <li>¿Detecté todos los errores?</li>
+    <li>¿Usé <code>try-with-resources</code> o cierre manual?</li>
+    <li>¿Manejé excepciones específicas?</li>
+    <li>¿Validé campos (<code>length check</code>)?</li>
+    <li>¿Usé <code>trim()</code> al parsear?</li>
+    <li>¿Mostré resultados formateados?</li>
+    <li>¿El código está indentado correctamente?</li>
+    <li>¿Hay errores de compilación?</li>
+  </ul>
+</div>
+</div>
+
+<!-- ==================== TABLA COMPARATIVA ==================== -->
+<div class="seccion">
+<h2>10. Tabla Comparativa: 4 Modelos</h2>
+<table>
+  <tr><th>Aspecto</th><th>Modelo 1</th><th>Modelo 2</th><th>Modelo 3</th><th>Modelo 4</th></tr>
+  <tr><td><strong>Tema</strong></td><td>Lectura</td><td>Validación</td><td>Escritura</td><td>Lectura + Acum.</td></tr>
+  <tr><td><strong>Foco</strong></td><td>Gestión recursos</td><td>Lógica if</td><td>Append</td><td>Parsing</td></tr>
+  <tr><td><strong>Dificultad</strong></td><td>⭐⭐</td><td>⭐</td><td>⭐⭐</td><td>⭐⭐⭐</td></tr>
+  <tr><td><strong>Clase</strong></td><td><code>BufferedReader</code></td><td><code>Scanner</code></td><td><code>FileWriter</code></td><td><code>BufferedReader</code></td></tr>
+  <tr><td><strong>Tipo Error</strong></td><td>Fuga recursos</td><td>Validación</td><td>Formato</td><td>NumberFormat</td></tr>
+</table>
+</div>
+
+<!-- ==================== ESTRATEGIA ==================== -->
+<div class="seccion">
+<h2>11. Estrategia de Estudio y Consejos</h2>
+
+<h3>Semana 1 — Comprensión</h3>
+<ul>
+  <li>Lunes: Lee Modelo 1 (recursos)</li>
+  <li>Martes: Lee Modelo 2 (validación)</li>
+  <li>Miércoles: Lee Modelo 3 (escritura)</li>
+  <li>Jueves: Lee Modelo 4 (parsing)</li>
+  <li>Viernes: Repasa todos</li>
+</ul>
+
+<h3>Semana 2 — Práctica</h3>
+<ul>
+  <li>Lunes: Practica Modelo 1 sin solución</li>
+  <li>Martes: Practica Modelo 2</li>
+  <li>Miércoles: Practica Modelo 3</li>
+  <li>Jueves: Practica Modelo 4</li>
+  <li>Viernes: Simulacro 90 minutos (todos los modelos)</li>
+</ul>
+
+<h3>Semana 3 — Dominio</h3>
+<ul>
+  <li>Repasa conceptos clave</li>
+  <li>Memoriza patrones</li>
+  <li>Practica errores comunes</li>
+  <li>Simulacro final</li>
+</ul>
+
+<h3>Consejos para el Examen</h3>
+<ol>
+  <li><strong>Lee el enunciado 2 veces</strong> antes de empezar</li>
+  <li><strong>Identifica el tipo de problema</strong> (lectura, escritura, validación, parsing)</li>
+  <li><strong>Piensa en excepciones desde el inicio</strong> — no después</li>
+  <li><strong>Valida SIEMPRE</strong> antes de parsear</li>
+  <li><strong>Usa <code>trim()</code></strong> en datos que vienen de ficheros</li>
+  <li><strong>Detalla el código</strong> — no con prisa</li>
+  <li><strong>Comenta puntos clave</strong> — demuestra comprensión</li>
+  <li><strong>Compila mentalmente</strong> antes de escribir</li>
+</ol>
+
+<h3>Puntuación Esperada</h3>
+<div class="nota">
+  Si dominas RA5 completamente:<br>
+  · <strong>8 puntos código:</strong> solución correcta + excepciones + validaciones<br>
+  · <strong>2 puntos teoría:</strong> respuesta clara y detallada<br>
+  · <strong>Total: 10 puntos</strong>
+</div>
+</div>
+
+</body>
+</html>

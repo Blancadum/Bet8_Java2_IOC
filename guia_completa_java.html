@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Guía Java — POO, Collections, Hibernate, Scanner</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 15px; max-width: 860px; margin: 40px auto; padding: 0 24px; color: #222; line-height: 1.6; }
+  h1 { color: #1a1a2e; border-bottom: 3px solid #1a1a2e; padding-bottom: 10px; font-size: 26px; }
+  h2 { color: #16213e; border-bottom: 1px solid #ccc; padding-bottom: 6px; margin-top: 40px; font-size: 20px; }
+  h3 { color: #0f3460; margin-top: 24px; font-size: 16px; }
+  p, li { font-family: Arial, sans-serif; font-size: 15px; }
+  pre { background: #f4f4f4; border-left: 4px solid #0f3460; padding: 16px; border-radius: 4px; overflow-x: auto; margin: 12px 0; }
+  code { font-family: Consolas, monospace; font-size: 14px; }
+  pre code { font-family: Consolas, monospace; font-size: 14px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
+  th { background: #1a1a2e; color: white; padding: 10px 12px; text-align: left; font-family: Arial, sans-serif; }
+  td { border: 1px solid #ddd; padding: 8px 12px; font-family: Arial, sans-serif; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .alerta { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 15px; border-radius: 4px; margin: 14px 0; font-size: 14px; }
+  .alerta strong { color: #856404; }
+  .seccion { page-break-inside: avoid; }
+  .indice { background: #f0f4ff; border: 1px solid #c0cfee; border-radius: 6px; padding: 16px 24px; margin-bottom: 36px; }
+  .indice h2 { border: none; margin-top: 0; }
+  .indice ol { margin: 0; padding-left: 20px; }
+  .indice li { margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<h1>Guía Java — POO, Collections, Hibernate y Scanner</h1>
+
+<div class="indice">
+  <h2>Contenido</h2>
+  <ol>
+    <li>Keyword <code>super</code> — herencia</li>
+    <li>Collections — ArrayList, HashMap, HashSet</li>
+    <li>Hibernate — mapeo de entidades</li>
+    <li>Hibernate — configuración</li>
+    <li>Hibernate + DAO — conceptos de examen</li>
+    <li>Scanner — terminal y archivos</li>
+  </ol>
+</div>
+
+<!-- ==================== 1. SUPER ==================== -->
+<div class="seccion">
+<h2>1. Keyword super — Herencia</h2>
+
+<p><code>super</code> es una referencia a la clase padre. Se usa en dos situaciones:</p>
+
+<h3>super() — Llamar al constructor del padre</h3>
+<pre><code>public class Usuario {
+    protected String nombre;
+
+    public Usuario(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void mostrarInfo() {
+        System.out.println("Usuario: " + nombre);
+    }
+}
+
+public class Admin extends Usuario {
+    private String departamento;
+
+    public Admin(String nombre, String departamento) {
+        super(nombre);              // llama al constructor de Usuario
+        this.departamento = departamento;
+    }
+
+    @Override
+    public void mostrarInfo() {
+        super.mostrarInfo();        // llama al método del padre
+        System.out.println("Departamento: " + departamento);
+        System.out.println("Rol: Administrador");
+    }
+}
+
+// Uso
+Admin admin = new Admin("Carlos", "TI");
+admin.mostrarInfo();</code></pre>
+
+<h3>Regla rápida</h3>
+<table>
+  <tr><th>Uso</th><th>Para qué sirve</th></tr>
+  <tr><td><code>super()</code></td><td>Llamar al constructor del padre para inicializar sus atributos</td></tr>
+  <tr><td><code>super.metodo()</code></td><td>Ejecutar el método del padre dentro del método sobreescrito</td></tr>
+</table>
+</div>
+
+<!-- ==================== 2. COLLECTIONS ==================== -->
+<div class="seccion">
+<h2>2. Collections</h2>
+
+<h3>ArrayList — Lista ordenada, permite duplicados</h3>
+<pre><code>import java.util.ArrayList;
+
+ArrayList&lt;String&gt; lista = new ArrayList&lt;&gt;();
+lista.add("Ana");
+lista.add("Luis");
+lista.add("Ana");        // permite duplicados
+
+lista.get(0);            // "Ana" — acceso por índice
+lista.remove("Luis");
+lista.size();            // 2
+lista.contains("Ana");   // true
+
+// Recorrer
+for (String nombre : lista) {
+    System.out.println(nombre);
+}</code></pre>
+
+<h3>HashMap — Pares clave → valor</h3>
+<pre><code>import java.util.HashMap;
+
+HashMap&lt;String, Integer&gt; edades = new HashMap&lt;&gt;();
+edades.put("Ana", 25);
+edades.put("Luis", 30);
+
+edades.get("Ana");           // 25 — acceso por clave
+edades.containsKey("Luis");  // true
+edades.remove("Luis");
+
+// Recorrer
+for (String clave : edades.keySet()) {
+    System.out.println(clave + ": " + edades.get(clave));
+}</code></pre>
+
+<h3>HashSet — Sin duplicados, sin orden</h3>
+<pre><code>import java.util.HashSet;
+
+HashSet&lt;String&gt; set = new HashSet&lt;&gt;();
+set.add("rojo");
+set.add("azul");
+set.add("rojo");      // ignorado, ya existe
+
+set.size();           // 2
+set.contains("azul"); // true</code></pre>
+
+<h3>Cuándo usar cada uno</h3>
+<table>
+  <tr><th>Necesitas...</th><th>Usa</th></tr>
+  <tr><td>Lista con índices</td><td><code>ArrayList</code></td></tr>
+  <tr><td>Clave → valor</td><td><code>HashMap</code></td></tr>
+  <tr><td>Sin repetidos</td><td><code>HashSet</code></td></tr>
+</table>
+
+<h3>Caso práctico — Gestión de una clase</h3>
+<pre><code>import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Clase {
+    public static void main(String[] args) {
+
+        HashMap&lt;String, Integer&gt; alumnos = new HashMap&lt;&gt;();
+        alumnos.put("Ana", 8);
+        alumnos.put("Luis", 4);
+        alumnos.put("Marta", 6);
+        alumnos.put("Carlos", 3);
+
+        // Mostrar todos
+        for (String nombre : alumnos.keySet()) {
+            System.out.println(nombre + ": " + alumnos.get(nombre));
+        }
+
+        // Buscar nota de un alumno
+        System.out.println("Nota de Ana: " + alumnos.get("Ana"));
+
+        // Lista de aprobados
+        ArrayList&lt;String&gt; aprobados = new ArrayList&lt;&gt;();
+        for (String nombre : alumnos.keySet()) {
+            if (alumnos.get(nombre) &gt;= 5) {
+                aprobados.add(nombre);
+            }
+        }
+
+        for (String nombre : aprobados) {
+            System.out.println("Aprobado: " + nombre);
+        }
+    }
+}</code></pre>
+</div>
+
+<!-- ==================== 3. HIBERNATE MAPEO ==================== -->
+<div class="seccion">
+<h2>3. Hibernate — Mapeo de entidades</h2>
+
+<h3>Anotaciones esenciales</h3>
+<pre><code>import jakarta.persistence.*;
+
+@Entity                          // esta clase ES una tabla
+@Table(name = "usuarios")        // nombre de la tabla (opcional)
+public class Usuario {
+
+    @Id                          // clave primaria
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // autoincremento
+    private Long id;
+
+    @Column(name = "nombre", nullable = false, length = 100)
+    private String nombre;
+
+    @Column(name = "email", unique = true)
+    private String email;
+
+    // getters y setters obligatorios
+}</code></pre>
+
+<h3>Relaciones entre entidades</h3>
+<pre><code>@Entity
+public class Usuario {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToMany(mappedBy = "usuario")
+    private List&lt;Pedido&gt; pedidos;
+}
+
+@Entity
+public class Pedido {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")   // columna de clave foránea
+    private Usuario usuario;
+}</code></pre>
+
+<h3>Tipos de relación</h3>
+<table>
+  <tr><th>Anotación</th><th>Ejemplo</th></tr>
+  <tr><td><code>@OneToOne</code></td><td>Un usuario → un perfil</td></tr>
+  <tr><td><code>@OneToMany</code></td><td>Un usuario → muchos pedidos</td></tr>
+  <tr><td><code>@ManyToOne</code></td><td>Muchos pedidos → un usuario</td></tr>
+  <tr><td><code>@ManyToMany</code></td><td>Muchos alumnos → muchos cursos</td></tr>
+</table>
+</div>
+
+<!-- ==================== 4. CONFIGURACIÓN ==================== -->
+<div class="seccion">
+<h2>4. Hibernate — Configuración</h2>
+
+<h3>persistence.xml — Proyecto Java puro</h3>
+<p>Ubicación: <code>src/main/resources/META-INF/persistence.xml</code></p>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0"&gt;
+    &lt;persistence-unit name="miUnidad"&gt;
+        &lt;class&gt;com.ejemplo.Usuario&lt;/class&gt;
+        &lt;class&gt;com.ejemplo.Pedido&lt;/class&gt;
+        &lt;properties&gt;
+            &lt;property name="jakarta.persistence.jdbc.driver"   value="com.mysql.cj.jdbc.Driver"/&gt;
+            &lt;property name="jakarta.persistence.jdbc.url"      value="jdbc:mysql://localhost:3306/mibd"/&gt;
+            &lt;property name="jakarta.persistence.jdbc.user"     value="root"/&gt;
+            &lt;property name="jakarta.persistence.jdbc.password" value="1234"/&gt;
+            &lt;property name="hibernate.dialect"                 value="org.hibernate.dialect.MySQLDialect"/&gt;
+            &lt;property name="hibernate.hbm2ddl.auto"            value="update"/&gt;
+            &lt;property name="hibernate.show_sql"                value="true"/&gt;
+        &lt;/properties&gt;
+    &lt;/persistence-unit&gt;
+&lt;/persistence&gt;</code></pre>
+
+<h3>application.properties — Spring Boot</h3>
+<p>Ubicación: <code>src/main/resources/application.properties</code></p>
+<pre><code>spring.datasource.url=jdbc:mysql://localhost:3306/mibd
+spring.datasource.username=root
+spring.datasource.password=1234
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect</code></pre>
+
+<h3>hbm2ddl.auto — opciones</h3>
+<table>
+  <tr><th>Valor</th><th>Qué hace</th></tr>
+  <tr><td><code>create</code></td><td>Borra y crea las tablas cada vez</td></tr>
+  <tr><td><code>update</code></td><td>Actualiza sin borrar datos</td></tr>
+  <tr><td><code>validate</code></td><td>Solo comprueba, no toca nada</td></tr>
+  <tr><td><code>none</code></td><td>Hibernate no toca la BD</td></tr>
+</table>
+<p>En desarrollo usa <code>update</code>, en producción usa <code>validate</code> o <code>none</code>.</p>
+</div>
+
+<!-- ==================== 5. DAO ==================== -->
+<div class="seccion">
+<h2>5. Hibernate + DAO — Conceptos de examen</h2>
+
+<h3>EntityManager — el objeto central</h3>
+<pre><code>EntityManagerFactory emf = Persistence.createEntityManagerFactory("miUnidad");
+EntityManager em = emf.createEntityManager();</code></pre>
+
+<table>
+  <tr><th>Método</th><th>Qué hace</th></tr>
+  <tr><td><code>em.persist(obj)</code></td><td>INSERT — guarda nuevo</td></tr>
+  <tr><td><code>em.find(Clase.class, id)</code></td><td>SELECT por id</td></tr>
+  <tr><td><code>em.merge(obj)</code></td><td>UPDATE — actualiza</td></tr>
+  <tr><td><code>em.remove(obj)</code></td><td>DELETE</td></tr>
+</table>
+
+<h3>Transacciones — obligatorias para escribir</h3>
+<pre><code>em.getTransaction().begin();
+em.persist(usuario);
+em.getTransaction().commit();  // si falla → rollback()</code></pre>
+
+<h3>Patrón DAO</h3>
+<pre><code>public class UsuarioDAO {
+    private EntityManager em;
+
+    public UsuarioDAO(EntityManager em) {
+        this.em = em;
+    }
+
+    public void guardar(Usuario u) {
+        em.getTransaction().begin();
+        em.persist(u);
+        em.getTransaction().commit();
+    }
+
+    public Usuario buscarPorId(Long id) {
+        return em.find(Usuario.class, id);
+    }
+
+    public void eliminar(Long id) {
+        Usuario u = buscarPorId(id);
+        em.getTransaction().begin();
+        em.remove(u);
+        em.getTransaction().commit();
+    }
+}</code></pre>
+
+<h3>Estados de una entidad</h3>
+<table>
+  <tr><th>Estado</th><th>Significa</th></tr>
+  <tr><td><strong>Transient</strong></td><td>Objeto creado pero Hibernate no lo conoce</td></tr>
+  <tr><td><strong>Managed</strong></td><td>Hibernate lo controla, cambios se sincronizan</td></tr>
+  <tr><td><strong>Detached</strong></td><td>Existió en BD pero ya no está en sesión activa</td></tr>
+  <tr><td><strong>Removed</strong></td><td>Marcado para borrar</td></tr>
+</table>
+
+<h3>JPQL — consultas orientadas a objetos</h3>
+<pre><code>// No usas nombre de tabla, usas nombre de CLASE Java
+TypedQuery&lt;Usuario&gt; query = em.createQuery(
+    "SELECT u FROM Usuario u WHERE u.nombre = :nombre", Usuario.class
+);
+query.setParameter("nombre", "Ana");
+Usuario resultado = query.getSingleResult();</code></pre>
+
+<h3>Lazy vs Eager</h3>
+<table>
+  <tr><th>Tipo</th><th>Comportamiento</th><th>Por defecto en</th></tr>
+  <tr><td><code>LAZY</code></td><td>Carga los datos solo cuando los pides</td><td><code>@OneToMany</code></td></tr>
+  <tr><td><code>EAGER</code></td><td>Carga los datos siempre, aunque no los necesites</td><td><code>@ManyToOne</code></td></tr>
+</table>
+</div>
+
+<!-- ==================== 6. SCANNER ==================== -->
+<div class="seccion">
+<h2>6. Scanner — Terminal y archivos</h2>
+
+<h3>Leer por terminal</h3>
+<pre><code>import java.util.Scanner;
+
+Scanner sc = new Scanner(System.in);  // System.in = teclado
+
+System.out.print("Escribe tu nombre: ");
+String nombre = sc.nextLine();   // lee texto completo
+
+System.out.print("Escribe tu edad: ");
+int edad = sc.nextInt();         // lee número entero
+
+System.out.println("Hola " + nombre + ", tienes " + edad + " años");
+
+sc.close();</code></pre>
+
+<h3>Métodos según tipo de dato</h3>
+<table>
+  <tr><th>Método</th><th>Lee</th></tr>
+  <tr><td><code>sc.nextLine()</code></td><td>Texto completo (con espacios)</td></tr>
+  <tr><td><code>sc.next()</code></td><td>Una sola palabra</td></tr>
+  <tr><td><code>sc.nextInt()</code></td><td>Número entero</td></tr>
+  <tr><td><code>sc.nextDouble()</code></td><td>Número decimal</td></tr>
+  <tr><td><code>sc.nextBoolean()</code></td><td>true / false</td></tr>
+</table>
+
+<h3>Trampa frecuente: nextInt + nextLine</h3>
+<div class="alerta">
+  <strong>Problema:</strong> <code>nextInt()</code> deja un ENTER pendiente. El siguiente <code>nextLine()</code> se lo come y no espera al usuario.
+</div>
+<pre><code>// MAL
+int edad = sc.nextInt();
+String nombre = sc.nextLine();  // se come el ENTER
+
+// BIEN
+int edad = sc.nextInt();
+sc.nextLine();                  // limpia el ENTER pendiente
+String nombre = sc.nextLine();  // ahora sí funciona</code></pre>
+
+<h3>Leer un archivo</h3>
+<pre><code>import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+
+public class LeerArchivo {
+    public static void main(String[] args) {
+        try {
+            File archivo = new File("datos.txt");
+            Scanner sc = new Scanner(archivo);
+
+            while (sc.hasNextLine()) {
+                String linea = sc.nextLine();
+                System.out.println(linea);
+            }
+
+            sc.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Archivo no encontrado");
+        }
+    }
+}</code></pre>
+
+<h3>Diferencia: Terminal vs Archivo</h3>
+<table>
+  <tr><th></th><th>Terminal</th><th>Archivo</th></tr>
+  <tr><td>Fuente</td><td><code>new Scanner(System.in)</code></td><td><code>new Scanner(new File("ruta"))</code></td></tr>
+  <tr><td>Necesita try/catch</td><td>No</td><td>Sí (<code>FileNotFoundException</code>)</td></tr>
+  <tr><td>Cuándo acaba</td><td>Cuando el usuario para</td><td>Cuando no hay más líneas</td></tr>
+</table>
+</div>
+
+</body>
+</html>

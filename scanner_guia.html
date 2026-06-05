@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Scanner en Java</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #222; }
+  h1 { color: #1a1a2e; border-bottom: 2px solid #1a1a2e; padding-bottom: 8px; }
+  h2 { color: #16213e; margin-top: 30px; }
+  h3 { color: #0f3460; }
+  pre { background: #f4f4f4; border-left: 4px solid #0f3460; padding: 15px; border-radius: 4px; overflow-x: auto; }
+  code { font-family: "Courier New", monospace; font-size: 14px; }
+  table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+  th { background: #1a1a2e; color: white; padding: 10px; text-align: left; }
+  td { border: 1px solid #ddd; padding: 8px 12px; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .alerta { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 15px; border-radius: 4px; margin: 15px 0; }
+  .alerta strong { color: #856404; }
+</style>
+</head>
+<body>
+
+<h1>Scanner en Java</h1>
+
+<h2>1. Leer por terminal</h2>
+
+<pre><code>import java.util.Scanner;
+
+Scanner sc = new Scanner(System.in);  // System.in = teclado
+
+System.out.print("Escribe tu nombre: ");
+String nombre = sc.nextLine();   // lee texto
+
+System.out.print("Escribe tu edad: ");
+int edad = sc.nextInt();         // lee número entero
+
+System.out.println("Hola " + nombre + ", tienes " + edad + " años");
+
+sc.close();  // siempre cerrar al final</code></pre>
+
+<h2>2. Métodos según el tipo de dato</h2>
+
+<table>
+  <tr><th>Método</th><th>Lee</th></tr>
+  <tr><td><code>sc.nextLine()</code></td><td>Texto completo (con espacios)</td></tr>
+  <tr><td><code>sc.next()</code></td><td>Una sola palabra</td></tr>
+  <tr><td><code>sc.nextInt()</code></td><td>Número entero</td></tr>
+  <tr><td><code>sc.nextDouble()</code></td><td>Número decimal</td></tr>
+  <tr><td><code>sc.nextBoolean()</code></td><td>true / false</td></tr>
+</table>
+
+<h2>3. Trampa frecuente: nextInt + nextLine</h2>
+
+<div class="alerta">
+  <strong>Problema:</strong> <code>nextInt()</code> lee el número pero deja un ENTER pendiente. El siguiente <code>nextLine()</code> se lo come y no espera al usuario.
+</div>
+
+<pre><code>// MAL
+int edad = sc.nextInt();
+String nombre = sc.nextLine();  // se come el ENTER, no espera
+
+// BIEN
+int edad = sc.nextInt();
+sc.nextLine();                  // limpia el ENTER pendiente
+String nombre = sc.nextLine();  // ahora sí funciona</code></pre>
+
+<h2>4. Leer un archivo</h2>
+
+<pre><code>import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+
+public class LeerArchivo {
+    public static void main(String[] args) {
+        try {
+            File archivo = new File("datos.txt");
+            Scanner sc = new Scanner(archivo);
+
+            while (sc.hasNextLine()) {        // mientras haya líneas
+                String linea = sc.nextLine();
+                System.out.println(linea);
+            }
+
+            sc.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Archivo no encontrado");
+        }
+    }
+}</code></pre>
+
+<h3>Procesar cada línea con datos separados</h3>
+<p>Si <code>datos.txt</code> contiene: <code>Ana 25</code>, <code>Luis 30</code>, <code>Marta 22</code></p>
+
+<pre><code>while (sc.hasNextLine()) {
+    String nombre = sc.next();    // lee palabra
+    int edad = sc.nextInt();      // lee número
+    System.out.println(nombre + " tiene " + edad + " años");
+}</code></pre>
+
+<h2>5. Diferencia clave: Terminal vs Archivo</h2>
+
+<table>
+  <tr><th></th><th>Terminal</th><th>Archivo</th></tr>
+  <tr><td>Fuente</td><td><code>new Scanner(System.in)</code></td><td><code>new Scanner(new File("ruta"))</code></td></tr>
+  <tr><td>Necesita try/catch</td><td>No</td><td>Sí (<code>FileNotFoundException</code>)</td></tr>
+  <tr><td>Cuándo acaba</td><td>Cuando el usuario para</td><td>Cuando no hay más líneas</td></tr>
+</table>
+
+</body>
+</html>
